@@ -3,3 +3,14 @@
 
 # Packaging
 .cask
+/elpa
+
+# Backup files
+/*~
+/auto-save-list
+
+/ac-comphist.dat
+/config.el
+/srecode-map.el
+/recentf
+/ido.last
