@@ -1,0 +1,123 @@
+;;; Emacs init file.
+
+;;; Turn off Press and Hold
+(when (and (fboundp 'ns-set-resource) (display-graphic-p))
+  (ns-set-resource nil "ApplePressAndHoldEnabled" "NO"))
+
+;;; Set frame title format to distinguish Emacs and EmacsMac windows
+(when (and (display-graphic-p)
+           (string-prefix-p "/Applications/MacPorts" invocation-directory))
+  (setq frame-title-format
+        `("" "%b" " (" ,(replace-regexp-in-string
+                         "/Applications/MacPorts/\\(.*\\)\\.app/.*"
+                         "\\1" invocation-directory) ")")))
+
+;;; Put trash in ~/.Trash
+(when (eq system-type 'darwin)
+  (setq trash-directory "~/.Trash"))
+
+;;; Set email address for ChangeLog entries
+(cond ((executable-find "git")
+       (setq user-mail-address
+             (shell-command-to-string
+              "git config user.email | tr -d \" \\n\"")))
+      ((executable-find "contacts")
+       (setq user-mail-address
+             (shell-command-to-string
+              "contacts -Hmf %we | tr -d \" \\n\""))))
+
+;;; Inhibit startup message
+(setq inhibit-startup-screen t)
+
+;;; Turn on Show Paren mode
+(show-paren-mode t)
+
+;;; Turn on syntax highlighting
+(global-font-lock-mode t)
+
+;;; Show trailing whitespace, except in eww
+(setq-default show-trailing-whitespace t)
+(add-hook 'eww-mode-hook #'(lambda () (setq show-trailing-whitespace nil)))
+
+;;; Turn on Transient Mark mode
+(setq transient-mark-mode t)
+
+;;; Hide the toolbar
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
+
+;;; Display date/time in modeline
+(setq display-time-day-and-date t)
+(display-time)
+
+;;; Show line/column numbers in modeline
+(line-number-mode 1)
+(column-number-mode 1)
+
+;;; Show function name in modeline
+(which-function-mode 1)
+
+;;; Ensure files end with newline
+(setq require-final-newline t)
+
+;;; Don't use tab characters
+(setq-default indent-tabs-mode nil)
+
+;;; Indent by 2 spaces
+(setq standard-indent 2)
+(setq c-basic-offset 2)
+
+;;; Autofill
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
+(setq-default auto-fill-function 'do-auto-fill)
+
+;;; SubWord mode
+(add-hook 'c-mode-common-hook 'subword-mode)
+(add-hook 'osd-mode-hook 'subword-mode)
+
+;;; Don't reindent on newlines
+(when (locate-library "electric")
+  (setq electric-indent-chars '()))
+
+;;; Locate with Spotlight -- http://emacswiki.org/emacs/MacOSTweaks
+(when (eq system-type 'darwin)
+  (setq locate-command "mdfind"))
+
+;;; Make customize use a separate file
+(if (>= emacs-major-version 24)
+    (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (setq custom-file (expand-file-name "~/.emacs.d/custom-old.el")))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
+;;; Now do package-y stuff on Emacs 24+.
+(cond
+ ((>= emacs-major-version 24)
+  (require 'package)
+  (setq package-enable-at-startup nil)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("org"   . "http://orgmode.org/elpa/")    t)
+  (package-initialize)
+
+  ;; Bootstrap org and org-plus-contrib
+  (unless (package-installed-p 'org)
+    (package-refresh-contents)
+    (package-install 'org))
+  (unless (package-installed-p 'org-plus-contrib)
+    (package-refresh-contents)
+    (package-install 'org-plus-contrib))
+
+  ;; Allow a hyphen before emphasized text in org-mode, to allow
+  ;; things like "non-~NULL~".  This has to be defined before org is
+  ;; loaded.
+  (setq org-emphasis-regexp-components
+    '("- \t('\"{" "- \t.,:!?;'\")}\\[" " \t\r\n,\"'" "." 1))
+
+  ;; Load config.org, where the bulk of settings and package loads
+  ;; are.
+  (org-babel-load-file
+   (expand-file-name "config.org" user-emacs-directory)))
+
+ (t ;; old Emacs
+  (load-file "~/.emacs.d/init-old.el")))
