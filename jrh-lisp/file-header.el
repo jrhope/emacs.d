@@ -1,0 +1,32 @@
+(require 'subr-x)
+(require 'vc)
+
+(defun insert-generic-file-header ()
+  (interactive)
+  (beginning-of-buffer)
+  (insert "@file ")
+  (let* ((abs-filename (abbreviate-file-name (buffer-file-name)))
+         (repo-type (ignore-errors (vc-responsible-backend abs-filename))))
+    (if (not repo-type)
+        (insert abs-filename)
+      (let ((repo-root (vc-call-backend repo-type 'root abs-filename)))
+        (insert (string-remove-prefix repo-root abs-filename)))))
+  (newline)
+  (insert (user-full-name))
+  (insert " <") (insert user-mail-address) (insert ">")
+  (newline)
+  (push-mark nil nil)
+  (comment-region (point-min) (point))
+  (newline))
+
+(defun insert-file-header ()
+  (interactive)
+  (insert-generic-file-header))
+
+(defun new-file-header ()
+  "Inserts file header if file is empty"
+  (if (and (buffer-file-name)
+           (= (point-min) (point-max)))
+      (insert-file-header)))
+
+(provide 'file-header)
