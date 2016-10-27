@@ -108,11 +108,40 @@
     (package-refresh-contents)
     (package-install 'org-plus-contrib))
 
+  ;; These things must be set before loading org-mode.
+
   ;; Allow a hyphen before emphasized text in org-mode, to allow
-  ;; things like "non-~NULL~".  This has to be defined before org is
-  ;; loaded.
+  ;; things like "non-~NULL~".
   (setq org-emphasis-regexp-components
     '("- \t('\"{" "- \t.,:!?;'\")}\\[" " \t\r\n,\"'" "." 1))
+
+  ;; Enable these languages to be evaluated in code blocks.
+  (setq org-babel-load-languages
+        '((emacs-lisp . t)
+          (dot . t)
+          (latex . t)))
+
+  ;; Enable these export backends.
+  (setq org-export-backends
+        '(ascii beamer html icalendar latex man odt org texinfo))
+
+  ;; Allow alphabetical bullets in lists.
+  (setq org-list-allow-alphabetical t)
+
+  ;; Load these modules with org-mode.
+  (setq org-modules
+        '(org-bbdb org-bibtex org-docview org-gnus org-id org-info
+          org-irc org-mhe org-protocol org-rmail org-w3m org-bookmark
+          org-elisp-symbol org-mac-link org-man org-vm))
+
+  ;; soffice won't be in PATH on Mac OS
+  (when (eq system-type 'darwin)
+    (setq org-odt-convert-processes
+          '(("LibreOffice" "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i")
+            ("unoconv" "unoconv -f %f -o %d %i"))))
+
+  ;; Open org files fully expanded
+  (setq org-startup-folded 'showeverything)
 
   ;; Load config.org, where the bulk of settings and package loads
   ;; are.
