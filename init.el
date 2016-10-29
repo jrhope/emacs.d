@@ -26,6 +26,10 @@
              (shell-command-to-string
               "contacts -Hmf %we | tr -d \" \\n\""))))
 
+;;; Always send mail via mailclient on Mac
+(when (eq system-type 'darwin)
+  (setq send-mail-function 'mailclient-send-it))
+
 ;;; Inhibit startup message
 (setq inhibit-startup-screen t)
 
