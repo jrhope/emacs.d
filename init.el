@@ -12,9 +12,11 @@
                          "/Applications/MacPorts/\\(.*\\)\\.app/.*"
                          "\\1" invocation-directory) ")")))
 
-;;; Put trash in ~/.Trash
-(when (eq system-type 'darwin)
-  (setq trash-directory "~/.Trash"))
+;;; Put trash in ~/.Trash (Emacs 23.1+)
+(when (>= emacs-major-version 23)
+  (setq delete-by-moving-to-trash t)
+  (when (eq system-type 'darwin)
+    (setq trash-directory "~/.Trash")))
 
 ;;; Set email address for ChangeLog entries
 (cond ((executable-find "git")
