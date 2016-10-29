@@ -19,6 +19,20 @@ First of all, let's make sure that an accidental ^Z doesn't kill us.
 
 ** Mac Command-key Shortcuts
 
+Set modifier keys for Carbon and NS Emacsen: command is super, left
+option is meta, right option is not interpreted.
+
+#+BEGIN_SRC emacs-lisp
+  (when (eq system-type 'darwin)
+    (if (featurep 'ns)
+        (setq ns-command-modifier         'super
+              ns-alternate-modifier       'meta
+              ns-right-alternate-modifier nil)
+      (setq mac-command-modifier        'super
+            mac-option-modifier         'meta
+            mac-right-option-modifier   nil)))
+#+END_SRC
+
 When Emacs is built =--with-cocoa=, then it automatically loads
 =ns-win.el=, which defines a bunch of things to make Emacs act more
 like other Mac GUI applications.  We can test for this environment by
