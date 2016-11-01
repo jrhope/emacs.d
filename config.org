@@ -878,6 +878,15 @@ probably forget to use it.
   (use-package suggest :ensure t)
 #+END_SRC
 
+** DocView
+
+#+BEGIN_SRC emacs-lisp
+  (use-package doc-view
+    :config
+    (setq doc-view-continuous t
+          doc-view-resolution 200))
+#+END_SRC
+
 ** Programming
 *** Paredit
 
