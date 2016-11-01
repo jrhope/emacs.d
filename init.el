@@ -6,6 +6,7 @@
 
 ;;; Set frame title format to distinguish Emacs and EmacsMac windows
 (when (and (display-graphic-p)
+           (eq system-type 'darwin)
            (string-prefix-p "/Applications/MacPorts" invocation-directory))
   (setq frame-title-format
         `("" "%b" " (" ,(replace-regexp-in-string
