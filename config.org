@@ -1329,6 +1329,10 @@ this still applies.
   (put 'Base    'safe-local-variable 'integerp)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (put 'org-confirm-babel-evaluate 'safe-local-variable 'symbolp)
+#+END_SRC
+
 **** Quack
 
 Use Quack for Scheme.
