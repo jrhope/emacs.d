@@ -42,9 +42,13 @@
 ;;; Turn on syntax highlighting
 (global-font-lock-mode t)
 
-;;; Show trailing whitespace, except in eww
+;;; Show trailing whitespace, except in eww and Buffer-menu
 (setq-default show-trailing-whitespace t)
-(add-hook 'eww-mode-hook #'(lambda () (setq show-trailing-whitespace nil)))
+(let ((hide-whitespace
+       (lambda () (setq show-trailing-whitespace nil))))
+  (dolist (hook '(eww-mode-hook
+                  Buffer-menu-mode-hook))
+    (add-hook hook hide-whitespace)))
 
 ;;; Turn on Transient Mark mode
 (setq transient-mark-mode t)
