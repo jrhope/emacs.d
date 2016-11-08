@@ -1418,15 +1418,14 @@ Add extra indentation and highlighting for Scheme.
   (add-hook 'scheme-mode-hook 'jrh/scheme-mode-extras)
 #+END_SRC
 
-**** Scheme Mode for kawa and scsh Scripts
+**** Scheme Mode for Kawa scripts
 
-Use scheme-mode for Scheme Shell and Kawa scripts.
+Use scheme-mode for Kawa scripts.
 
 #+BEGIN_SRC emacs-lisp
   (use-package scheme
     :interpreter
-    (("scsh" . scheme-mode)
-     ("kawa\\(\\.sh\\)?" . scheme-mode)))
+    (("kawa\\(\\.sh\\)?" . scheme-mode)))
 #+END_SRC
 
 **** Scheme Complete
@@ -1467,6 +1466,18 @@ Copy the name of the function / macro / etc that we are currently in.
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (use-package geiser :ensure t)
+#+END_SRC
+
+**** Scheme Shell (scsh)
+
+Scsh uses a vertical bar as an ordinary symbol character (in
+particular, to use '| as a pipe), which confuses regular scheme-mode
+and makes paredit complain.  So, use scsh-mode instead.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package scsh-mode :load-path "jrh-lisp"
+    :mode "\\.scsh\\'"
+    :interpreter "scsh")
 #+END_SRC
 
 *** VRML
