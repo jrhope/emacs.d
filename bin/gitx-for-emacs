@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# For some reason, calling gitx directly from Emacs doesn't work.  It
+# fails with an error like:
+#
+# 2016-08-16 14:32:47.074 gitx[14344:707] *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[NSURL initFileURLWithPath:]: nil string parameter'
+# *** First throw call stack:
+# (
+# 	0   CoreFoundation                      0x00007fff8afecb06 __exceptionPreprocess + 198
+# 	1   libobjc.A.dylib                     0x00007fff94d483f0 objc_exception_throw + 43
+# 	2   CoreFoundation                      0x00007fff8afec8dc +[NSException raise:format:] + 204
+# 	3   Foundation                          0x00007fff8f899de7 -[NSURL(NSURL) initFileURLWithPath:] + 81
+# 	4   Foundation                          0x00007fff8f899ce7 +[NSURL(NSURL) fileURLWithPath:] + 43
+# 	5   gitx                                0x000000010f8ad1cb workingDirectoryURL + 536
+# 	6   gitx                                0x000000010f8ad43f main + 259
+# 	7   libdyld.dylib                       0x00007fff89d857e1 start + 0
+# 	8   ???                                 0x0000000000000002 0x0 + 2
+# )
+# libc++abi.dylib: terminate called throwing an exception
+#
+# And yet, if we call gitx from a shell script called from Emacs, then
+# it works just fine.
+exec /usr/bin/env gitx "$@"
