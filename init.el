@@ -126,12 +126,6 @@
   (setq org-emphasis-regexp-components
     '("- \t('\"{" "- \t.,:!?;'\")}\\[" " \t\r\n,\"'" "." 1))
 
-  ;; Enable these languages to be evaluated in code blocks.
-  (setq org-babel-load-languages
-        '((emacs-lisp . t)
-          (dot . t)
-          (latex . t)))
-
   ;; Enable these export backends.
   (setq org-export-backends
         '(ascii beamer html icalendar latex man odt org texinfo))
@@ -153,6 +147,14 @@
 
   ;; Open org files fully expanded
   (setq org-startup-folded 'showeverything)
+
+  ;; Enable these languages to be evaluated in code blocks.
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (dot . t)
+     (latex . t)
+     (plantuml . t)))
 
   ;; Load config.org, where the bulk of settings and package loads
   ;; are.
