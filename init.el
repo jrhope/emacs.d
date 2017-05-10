@@ -119,12 +119,19 @@
   (unless (package-installed-p 'org-plus-contrib)
     (package-refresh-contents)
     (package-install 'org-plus-contrib))
+  ;; Also install other third party export backends.
+  (unless (and (package-installed-p 'ox-mediawiki))
+    (package-refresh-contents)
+    (package-install 'ox-mediawiki))
 
   ;; These things must be set before loading org-mode.
 
   ;; Enable these export backends.
   (setq org-export-backends
-        '(ascii beamer html icalendar latex man odt org texinfo))
+        '(ascii beamer html icalendar latex man md odt org texinfo
+                ;; mediawiki steals ?m from md in the export menu
+                ;; so leave it off of the list
+                ))
 
   ;; Allow alphabetical bullets in lists.
   (setq org-list-allow-alphabetical t)
