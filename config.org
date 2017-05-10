@@ -935,17 +935,28 @@ being replaced in popularity by something called smartparens.
   (use-package hideshow
     :diminish hs-minor-mode
     :init
+    (add-to-list 'hs-special-modes-alist
+                 '(nxml-mode
+                   "<!--\\|<[^/>]*[^/]>"
+                   "-->\\|</[^/>]*[^/]>"
+
+                   "<!--"
+                   sgml-skip-tag-forward
+                   nil))
     (defun jrh/use-hideshow ()
       (interactive)
       (unless (eq major-mode 'jar-manifest-mode)
         (hs-minor-mode 1)
         ;; key bindings to match outline mode
-        (local-set-key [(control ?c) (control ?d)] 'hs-hide-block)
-        (local-set-key [(control ?c) (control ?s)] 'hs-show-block)
-        (local-set-key [(control ?c) (control ?q)] 'hs-hide-all)
-        (local-set-key [(control ?c) (control ?a)] 'hs-show-all)))
+        (unless (eq major-mode 'nxml-mode)
+          (local-set-key [(control ?c) (control ?d)] 'hs-hide-block)
+          (local-set-key [(control ?c) (control ?s)] 'hs-show-block)
+          (local-set-key [(control ?c) (control ?q)] 'hs-hide-all)
+          (local-set-key [(control ?c) (control ?a)] 'hs-show-all))
+        (local-set-key [(control ?c) ?h] 'hs-toggle-hiding)))
     (add-hook 'prog-mode-hook 'jrh/use-hideshow)
-    (add-hook 'osd-mode-hook 'jrh/use-hideshow))
+    (add-hook 'osd-mode-hook 'jrh/use-hideshow)
+    (add-hook 'nxml-mode-hook 'jrh/use-hideshow))
 #+END_SRC
 
 *** Imenu
