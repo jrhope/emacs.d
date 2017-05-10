@@ -1600,6 +1600,23 @@ This is influenced by javap-mode (but uses the original buffer) and by
                  '("\\.class\\'" . bytecode-handler)))
 #+END_SRC
 
+*** TOML
+
+There's toml-mode, which is a major mode for editing TOML files:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package toml-mode :ensure t
+    :mode ("\\.toml\\'" . toml-mode))
+#+END_SRC
+
+as well as toml, which is a library for parsing TOML files, but it
+only supports v0.1.0:
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package toml :ensure t :defer t
+    :functions (toml:read-from-string toml:read-from-file))
+#+END_SRC
+
 * Org
 
 Org mode is the center of the universe.  It feels strange to be
