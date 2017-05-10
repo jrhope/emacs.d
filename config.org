@@ -344,6 +344,11 @@ by MP Emacsen without modifying =load-path=.
 
 All the cool kids use Magit, so let's give it a shot.
 
+#+BEGIN_SRC emacs-lisp
+  (use-package magit :ensure t
+    :bind (("C-x g" . magit-status)))
+#+END_SRC
+
 I like to use GitX rather than gitk.  But there's a wrinkle.  Magit
 invokes gitk as in
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -383,14 +388,14 @@ Well that's no good.  It appears to be something specific to how
 which is another Emacs builtin written in C).  So, I wrote a one-line
 shell script that just does
 : exec gitx "$@"
-and that works just fine.  See ~/bin/gitx-for-emacs.
+and that works just fine.  See bin/gitx-for-emacs.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package magit :ensure t
-    :bind (("C-x g" . magit-status))
-    :init (setq magit-gitk-executable
-                (or (executable-find "gitx-for-emacs")
-                    (executable-find "gitk"))))
+  (use-package magit-extras :no-require t
+    :config
+    (when (eq system-type 'darwin)
+      (setq magit-gitk-executable
+            (expand-file-name "bin/gitx-for-emacs" user-emacs-directory))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
