@@ -84,8 +84,9 @@
 (setq-default auto-fill-function 'do-auto-fill)
 
 ;;; SubWord mode
-(add-hook 'c-mode-common-hook 'subword-mode)
-(add-hook 'osd-mode-hook 'subword-mode)
+(when (locate-library "subword")
+  (add-hook 'c-mode-common-hook 'subword-mode)
+  (add-hook 'osd-mode-hook 'subword-mode))
 
 ;;; Don't reindent on newlines
 (when (locate-library "electric")
