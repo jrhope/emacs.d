@@ -1643,6 +1643,18 @@ For example, doing this here doesn't work.
     '("- \t('\"{" "- \t.,:!?;'\")}\\[" " \t\r\n,\"'" "." 1))
 #+END_SRC
 
+** Easy Templates
+
+Add a template so that "<b" expands to #+BEGIN_EXPORT beamer, but only
+if "b" isn't already a template.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-structure-template-alist
+               '("b" "#+BEGIN_EXPORT beamer\n?\n#+END_EXPORT")
+               t
+               #'(lambda (o1 o2) (equal (car o1) (car o2))))
+#+END_SRC
+
 ** Notes and Capturing
 
 #+BEGIN_SRC emacs-lisp
