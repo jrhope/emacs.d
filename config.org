@@ -1736,7 +1736,14 @@ When exporting to HTML, put captions on table.el tables, too.
                                       (org-export-data caption info)))))
           (with-current-buffer outbuf
             (prog1 (org-trim (buffer-string))
-              (kill-buffer) ))))) )
+              (kill-buffer) )))))
+    :init
+    (defconst org-html-special-string-regexps
+      '(("\\\\-"         . "&shy;")             ; shy
+        ("---\\([^-]\\)" . "&mdash;\\1")        ; mdash
+        ("--\\([^-]\\)"  . "&ndash;\\1")        ; ndash
+        ("\\.\\.\\."     . "&hellip;"))         ; hellip
+      "Regular expressions for special string conversion."))
 #+END_SRC
 
 At some point, htmlize stopped being distributed with org-mode.  This
