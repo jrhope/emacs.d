@@ -1828,6 +1828,51 @@ version.
 )
 #+END_SRC
 
+The Org Export backend for Markdown fails to define an "export
+snippet" transcoder, so let's make one.  Let's also export tables
+using Markdown syntax rather than inheriting the HTML transcoders.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-md :no-require t
+    :init
+    (defun jrh/org-md-export-snippet (export-snippet _contents _info)
+      "Transcode an EXPORT-SNIPPET object from Org to Markdown.
+  CONTENTS is nil.  INFO is a plist holding contextual information."
+      (when (eq (org-export-snippet-backend export-snippet) 'md)
+        (org-element-property :value export-snippet)))
+    (push '(export-snippet . jrh/org-md-export-snippet)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
+    (defun jrh/org-md-table (table contents info)
+      (if (eq (org-element-property :type table) 'table.el)
+          ;; "table.el" table, use the HTML exporter
+          (org-html-table--table.el-table table info)
+        ;; Standard table.
+        (replace-regexp-in-string "\n+" "\n" contents)))
+    (push '(table . jrh/org-md-table)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
+    (defun jrh/org-md-table-cell (table-cell contents info)
+      (if (org-export-table-cell-ends-colgroup-p table-cell info)
+          (format "%s" contents)
+        (format "%s | " contents)))
+    (push '(table-cell . jrh/org-md-table-cell)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
+    (defun jrh/org-md-table-row (table-row contents info)
+      (if (org-export-table-row-ends-header-p table-row info)
+          (concat contents "\n"
+                  (mapconcat 'identity
+                             (make-list
+                              (cdr (org-export-table-dimensions
+                                    (org-export-get-parent-table table-row)
+                                    info))
+                              "---") " | "))
+        (if contents contents "")))
+    (push '(table-row . jrh/org-md-table-row)
+          (org-export-backend-transcoders (org-export-get-backend 'md))))
+#+END_SRC
+
 ** Grab Links From Mac Apps
 
 #+BEGIN_SRC emacs-lisp
