@@ -1010,7 +1010,7 @@ being replaced in popularity by something called smartparens.
 
 *** Function-Args
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package function-args :ensure t :defer t
     :init
     (fa-config-default)
@@ -2067,7 +2067,7 @@ code in #if 0...#endif block to comment face - Stack Overflow]].
 
 ** __BEGIN_DECLS / __END_DECLS
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (add-hook 'c-mode-common-hook
     (lambda ()
       (add-to-list 'c-macro-names-with-semicolon "__BEGIN_DECLS")
