@@ -657,11 +657,11 @@ redefine the function with the bug fixed.
            ("M-E U" . insert-Uacute)
            ("M-N n" . insert-ntilde)
            ("M-N N" . insert-Ntilde)
-	   ("C-M-;" . insert-hellip)
-	   ("C-M-*" . insert-bullet)
-	   ("C-M-s-*" . insert-degree-sign)
-	   ("C-M-!" . insert-inverted-bang)
-	   ("C-M-?" . insert-inverted-question-mark)))
+           ("C-M-;" . insert-hellip)
+           ("C-M-*" . insert-bullet)
+           ("C-M-s-*" . insert-degree-sign)
+           ("C-M-!" . insert-inverted-bang)
+           ("C-M-?" . insert-inverted-question-mark)))
 #+END_SRC
 
 ** External Abook
