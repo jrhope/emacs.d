@@ -1600,6 +1600,18 @@ This is influenced by javap-mode (but uses the original buffer) and by
                  '("\\.class\\'" . bytecode-handler)))
 #+END_SRC
 
+*** PlantUML Mode
+
+See also where org-babel-load-languages is set in [[file:init.el]].
+
+#+BEGIN_SRC emacs-lisp
+  (use-package plantuml-mode :ensure t
+    :init
+    (setq org-plantuml-jar-path
+          (expand-file-name "~/java/plantuml/plantuml.jar")
+          plantuml-jar-path org-plantuml-jar-path))
+#+END_SRC
+
 *** TOML
 
 There's toml-mode, which is a major mode for editing TOML files:
