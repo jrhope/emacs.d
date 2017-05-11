@@ -1683,13 +1683,20 @@ literals unless followed by stuff in braces.  (Otherwise things like
 Hmm use-package is supposed to be better, but I have to mention every
 variable twice..
 
+Also, define the =by-backend= macro here.
+
 #+BEGIN_SRC emacs-lisp
   (use-package ox :no-require t
     :defines org-export-with-email org-export-with-sub-superscripts
     org-export-async-debug
     :config (setq org-export-with-email t
                   org-export-with-sub-superscripts '{}
-                  org-export-async-debug t))
+                  org-export-async-debug t)
+    (defmacro by-backend (&rest body)
+      `(case (if (boundp 'org-export-current-backend)
+                 org-export-current-backend
+               nil)
+         ,@body)))
 #+END_SRC
 
 When exporting to HTML, put captions on table.el tables, too.
