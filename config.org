@@ -744,6 +744,7 @@ See [[http://pragmaticemacs.com/emacs/weather-in-emacs/][Weather in Emacs | Prag
     :commands wttrin wttrin-query
     :init
     (setq wttrin-default-cities '("Alexandria,VA"))
+    (setq wttrin-default-accept-language '("Accept-Language" . "en-US"))
     (advice-add 'wttrin :before #'jrh/wttrin-save-frame)
     (advice-add 'wttrin-exit :after #'jrh/wttrin-restore-frame)
     (advice-add 'wttrin-query :after #'jrh/dont-show-trailing-whitespace)
