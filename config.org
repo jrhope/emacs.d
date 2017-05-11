@@ -1754,6 +1754,80 @@ source blocks.  So, make sure that it is also installed.
   (use-package htmlize :ensure t)
 #+END_SRC
 
+Org 9 has a bug wherein it converts LaTeX to an image file (for HTML
+export, say) in =$TMPDIR= but then tries to delete the log file from
+the current directory.  So, overwrite org-latex-compile with a fixed
+version.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-latex :no-require t
+    :init
+  (defun org-latex-compile (texfile &optional snippet)
+    "Compile a TeX file.
+
+  TEXFILE is the name of the file being compiled.  Processing is
+  done through the command specified in `org-latex-pdf-process',
+  which see.  Output is redirected to \"*Org PDF LaTeX Output*\"
+  buffer.
+
+  When optional argument SNIPPET is non-nil, TEXFILE is a temporary
+  file used to preview a LaTeX snippet.  In this case, do not
+  create a log buffer and do not remove log files.
+
+  Return PDF file name or raise an error if it couldn't be
+  produced."
+    (unless snippet (message "Processing LaTeX file %s..." texfile))
+    (let* ((compiler
+            (or (with-temp-buffer
+                  (save-excursion (insert-file-contents texfile))
+                  (and (search-forward-regexp (regexp-opt org-latex-compilers)
+                                              (line-end-position 2)
+                                              t)
+                       (progn (beginning-of-line) (looking-at-p "%"))
+                       (match-string 0)))
+                "pdflatex"))
+           (process (if (functionp org-latex-pdf-process) org-latex-pdf-process
+                      ;; Replace "%latex" and "%bibtex" with,
+                      ;; respectively, "%L" and "%B" so as to adhere to
+                      ;; `format-spec' specifications.
+                      (mapcar (lambda (command)
+                                (replace-regexp-in-string
+                                 "%\\(?:bib\\|la\\)tex\\>"
+                                 (lambda (m) (upcase (substring m 0 2)))
+                                 command))
+                              org-latex-pdf-process)))
+           (spec `((?B . ,(shell-quote-argument org-latex-bib-compiler))
+                   (?L . ,(shell-quote-argument compiler))))
+           (log-buf-name "*Org PDF LaTeX Output*")
+           (log-buf (and (not snippet) (get-buffer-create log-buf-name)))
+           (outfile (org-compile-file texfile process "pdf"
+                                      (format "See %S for details" log-buf-name)
+                                      log-buf spec)))
+      (unless snippet
+        (when org-latex-remove-logfiles
+          ;; [JRH] This is the fix, make sure to call #'delete-file from
+          ;; within the directory that contains the log files.
+          (let ((default-directory (file-name-directory outfile)))
+            (mapc #'delete-file
+                  (directory-files
+                   (file-name-directory outfile)
+                   nil
+                   (concat (regexp-quote (file-name-base outfile))
+                           "\\(?:\\.[0-9]+\\)?\\."
+                           (regexp-opt org-latex-logfiles-extensions))
+                   t))))
+        (let ((warnings (org-latex--collect-warnings log-buf)))
+          (message (concat "PDF file produced"
+                           (cond
+                            ((eq warnings 'error) " with errors.")
+                            (warnings (concat " with warnings: " warnings))
+                            (t "."))))))
+      ;; Return output file name.
+      outfile))
+
+)
+#+END_SRC
+
 ** Grab Links From Mac Apps
 
 #+BEGIN_SRC emacs-lisp
