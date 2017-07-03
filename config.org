@@ -1874,6 +1874,12 @@ using Markdown syntax rather than inheriting the HTML transcoders.
           (org-export-backend-transcoders (org-export-get-backend 'md))))
 #+END_SRC
 
+Load ox-pptx for PowerPoint export.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox-pptx :load-path "jrh-lisp")
+#+END_SRC
+
 ** Grab Links From Mac Apps
 
 #+BEGIN_SRC emacs-lisp
