@@ -815,9 +815,10 @@ See [[http://pragmaticemacs.com/emacs/super-efficient-movement-using-avy/][Super
 See [[http://pragmaticemacs.com/emacs/get-pop-up-help-for-keybindings-with-which-key/][Get pop-up help for keybindings with which-key | Pragmatic Emacs]].
 
 #+BEGIN_SRC emacs-lisp
-  (use-package which-key :ensure t
-    :diminish which-key-mode
-    :init (which-key-mode))
+  (when (version<= "24.4" emacs-version)
+    (use-package which-key :ensure t
+      :diminish which-key-mode
+      :init (which-key-mode)))
 #+END_SRC
 
 ** Wrap Region
@@ -1294,7 +1295,12 @@ Use cldoc.el from [["http://bmonkey.la.coocan.jp/emacs/elisp/cldoc.el][bmonkey.l
 
 #+BEGIN_SRC emacs-lisp
   (defun jrh/slime-dir ()
-    (package-desc-dir (cadr (assq 'slime package-alist))))
+    (if (fboundp 'package-desc-dir)
+        (package-desc-dir (cadr (assq 'slime package-alist)))
+      (package--dir "slime"
+                    (package-version-join
+                     (package-desc-vers
+                      (cdr (assq 'slime package-alist)))))))
 
   (defun jrh/kawa-classpath (with-swank &rest other-dirs)
     (let ((kawa-cp (shell-command-to-string
