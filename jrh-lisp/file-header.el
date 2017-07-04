@@ -1,4 +1,10 @@
-(require 'subr-x)
+(if (locate-library "subr-x")
+    (require 'subr-x)
+  (defsubst string-remove-prefix (prefix string)
+    "Remove PREFIX from STRING if present."
+    (if (string-prefix-p prefix string)
+        (substring string (length prefix))
+      string)))
 (require 'vc)
 
 (defun insert-generic-file-header ()
