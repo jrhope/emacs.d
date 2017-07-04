@@ -513,11 +513,13 @@ or things like that.
 
   (use-package auth-source
     :config
-    (setq auth-sources
-          '("~/.authinfo" macos-keychain-internet macos-keychain-generic
-            "~/.authinfo.gpg" "~/.netrc"))
-    (advice-add 'auth-source-macos-keychain-search-items :around
-                #'jrh/auth-source-macos-keychain-search-items))
+    (when (eq system-type 'darwin)
+      (setq auth-sources
+            '("~/.authinfo" macos-keychain-internet macos-keychain-generic
+              "~/.authinfo.gpg" "~/.netrc")))
+    (when (eq system-type 'darwin)
+      (advice-add 'auth-source-macos-keychain-search-items :around
+                  #'jrh/auth-source-macos-keychain-search-items)))
 #+END_SRC
 
 ** Visible Bookmarks
@@ -610,7 +612,9 @@ redefine the function with the bug fixed.
 
   (use-package newcomment
     :config
-    (advice-add 'comment-region-default :override #'jrh/comment-region-default))
+    (when (version<= "24.4" emacs-version)
+      (advice-add 'comment-region-default
+                  :override #'jrh/comment-region-default)))
 #+END_SRC
 
 ** Undo-Tree
@@ -745,9 +749,10 @@ See [[http://pragmaticemacs.com/emacs/weather-in-emacs/][Weather in Emacs | Prag
     :init
     (setq wttrin-default-cities '("Alexandria,VA"))
     (setq wttrin-default-accept-language '("Accept-Language" . "en-US"))
-    (advice-add 'wttrin :before #'jrh/wttrin-save-frame)
-    (advice-add 'wttrin-exit :after #'jrh/wttrin-restore-frame)
-    (advice-add 'wttrin-query :after #'jrh/dont-show-trailing-whitespace)
+    (when (version<= "24.4" emacs-version)
+      (advice-add 'wttrin :before #'jrh/wttrin-save-frame)
+      (advice-add 'wttrin-exit :after #'jrh/wttrin-restore-frame)
+      (advice-add 'wttrin-query :after #'jrh/dont-show-trailing-whitespace))
     :bind (("C-x w" . jrh/wttrin)))
 #+END_SRC
 
@@ -1040,13 +1045,14 @@ being replaced in popularity by something called smartparens.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  (defun jrh/ac-cc-mode-setup ()
-    (push 'ac-source-clang ac-sources)
-    (push 'ac-source-c-headers ac-sources))
+  (when (version<= "24.4" emacs-version)
+    (defun jrh/ac-cc-mode-setup ()
+      (push 'ac-source-clang ac-sources)
+      (push 'ac-source-c-headers ac-sources))
 
-  (use-package auto-complete-clang :ensure t
-    :init
-    (advice-add 'ac-cc-mode-setup :after #'jrh/ac-cc-mode-setup))
+    (use-package auto-complete-clang :ensure t
+      :init
+      (advice-add 'ac-cc-mode-setup :after #'jrh/ac-cc-mode-setup)))
 #+END_SRC
 
 This causes as many problems as it solves.
@@ -1516,7 +1522,13 @@ and makes paredit complain.  So, use scsh-mode instead.
 
 #+BEGIN_SRC emacs-lisp
   (eval-when-compile
-    (require 'subr-x)
+    (if (locate-library "subr-x")
+        (require 'subr-x)
+      (defsubst string-trim-right (string)
+        "Remove trailing whitespace from STRING."
+        (if (string-match "[ \t\n\r]+\\'" string)
+            (replace-match "" t t string)
+          string)))
     (defconst *maxima-path*
       (string-trim-right
        (shell-command-to-string
@@ -1913,12 +1925,13 @@ Load ox-pptx for PowerPoint export.
 Put enable/disable forms in custom.el rather than init.el.
 
 #+BEGIN_SRC emacs-lisp
-  (defun jrh/en/disable-command-in-custom (orig-fun &rest args)
-    "Save (put 'some-command 'disabled nil) in custom.el rather than
+  (when (version<= "24.4" emacs-version)
+    (defun jrh/en/disable-command-in-custom (orig-fun &rest args)
+      "Save (put 'some-command 'disabled nil) in custom.el rather than
   init.el."
-    (let ((user-init-file custom-file))
-      (apply orig-fun args)))
-  (advice-add 'en/disable-command :around #'jrh/en/disable-command-in-custom)
+      (let ((user-init-file custom-file))
+        (apply orig-fun args)))
+    (advice-add 'en/disable-command :around #'jrh/en/disable-command-in-custom))
 #+END_SRC
 
 ** FTP
@@ -1967,7 +1980,8 @@ Mac.
     (defun jrh/desktop-owner (pid)
       (and pid (emacs-process-p pid) pid))
     :config
-    (advice-add 'desktop-owner :filter-return #'jrh/desktop-owner))
+    (when (version<= "24.4" emacs-version)
+      (advice-add 'desktop-owner :filter-return #'jrh/desktop-owner)))
 #+END_SRC
 
 ** Recent Files
