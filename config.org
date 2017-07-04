@@ -331,7 +331,18 @@ The MacPorts Git package puts git.el and git-blame.el at
 /opt/local/share/emacs/site-lisp/ now, so they're already discoverable
 by MP Emacsen without modifying =load-path=.
 
+Same goes for the git-el package of Debian, Ubuntu, and Mint.  The
+CentOS git package, though, puts them at
+/usr/share/doc/git-$version/contrib/emacs/, which Emacs knows nothing
+about.  So, we have to add that directory to =load-path= if it
+exists.
+
 #+BEGIN_SRC emacs-lisp
+  (let* ((v (shell-command-to-string "git --version | tr -d \"\\n\" | sed -e 's/git version //'"))
+         (d (concat "/usr/share/doc/git-" v "/contrib/emacs")))
+    (when (file-directory-p d)
+      (add-to-list 'load-path d)))
+
   ;; Git
   (use-package vc-git :defer t)
   (use-package git :commands git-status)
