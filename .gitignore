@@ -22,3 +22,5 @@
 /tramp
 /eshell/history
 /eshell/lastdir
+/url/cache/*
+/url/cookies
