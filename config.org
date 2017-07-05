@@ -422,6 +422,13 @@ Relive history.
     :commands git-timemachine)
 #+END_SRC
 
+**** stat multiple repos
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-stat-all :load-path "jrh-lisp"
+    :bind (("C-x t" . jrh/git-stat-all)))
+#+END_SRC
+
 *** Subversion
 
 For Subversion repositories, we'll use =psvn=.
