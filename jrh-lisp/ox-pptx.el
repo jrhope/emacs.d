@@ -708,6 +708,7 @@ contextual information."
           `(,(concat "java -cp " (mapconcat 'identity org-pptx-classpath ":")
                      " -Dpptxfile=\"" pptxfile "\""
                      " kawa.repl " scmfile)))
+         (msg (message "%s" (car process)))
          (outfile (org-compile-file scmfile process "pptx" nil logbuf)))
     outfile))
 
