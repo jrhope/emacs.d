@@ -703,11 +703,12 @@ contextual information."
   "Run the given Kawa Scheme file to generate a PPTX file."
   (message "Processing Scheme file %s..." (expand-file-name scmfile))
   (let* ((pptxfile (replace-regexp-in-string "\\.scm\\'" ".pptx" scmfile))
+         (logbuf (format "*ox-pptx: %s" scmfile))
          (process
           `(,(concat "java -cp " (mapconcat 'identity org-pptx-classpath ":")
                      " -Dpptxfile=\"" pptxfile "\""
                      " kawa.repl " scmfile)))
-         (outfile (org-compile-file scmfile process "pptx")))
+         (outfile (org-compile-file scmfile process "pptx" nil logbuf)))
     outfile))
 
 (provide 'ox-pptx)
