@@ -148,8 +148,8 @@
 ;;; Save file, then re-open it -- this flushes some obsolete
 ;;; relationships for the slides we just deleted.
 
-(let* ((pptxfile (or (java.lang.System:get-property "pptxfile")
-                     "file.pptx"))
+(let* ((pptxfile ::String (or (java.lang.System:get-property "pptxfile")
+                              "file.pptx"))
        (out ::java.io.FileOutputStream (java.io.FileOutputStream
                                         pptxfile)))
   (pptx:write out)
@@ -532,8 +532,8 @@
 %c
 ;;; File contents end here.
 
-(let* ((pptxfile (or (java.lang.System:get-property "pptxfile")
-                     "file.pptx"))
+(let* ((pptxfile ::String (or (java.lang.System:get-property "pptxfile")
+                              "file.pptx"))
        (out ::java.io.FileOutputStream (java.io.FileOutputStream pptxfile)))
   (format #t "creating ~a...~%%" pptxfile)
   (pptx:write out)
