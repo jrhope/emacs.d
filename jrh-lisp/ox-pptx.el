@@ -420,7 +420,8 @@ INFO is a plist holding contextual information.  See
                  (string-match "\\.eps\\'" path)))
         (format "(img \"%s\")" path)
       (format "(link \"%s\" \"%s\" %s)" type path
-              (or desc '(plain-text "\"\""))))))
+              (or desc
+                  (format "(plain-text \"%s:%s\")" type path))))))
 
 ;;;; Node Property
 
