@@ -347,10 +347,11 @@
     (set! p:anchor anchor)))
 
 (define (insert-paragraph (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
-                          lst (s ::org.apache.poi.xslf.usermodel.XSLFTextShape))
+                          lst s)
   (if (equal? '(img) (map car lst))
       (insert-image slide (cadar lst))
-    (let* ((s (or s (slide:create-text-box)))
+    (let* ((s ::org.apache.poi.xslf.usermodel.XSLFTextShape
+              (or s (slide:create-text-box)))
            (p (s:add-new-text-paragraph))
            (a s:anchor)
            (page-size pptx:page-size))
