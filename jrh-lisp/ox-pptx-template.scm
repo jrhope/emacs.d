@@ -338,12 +338,21 @@
          (type (ext->imgtype ext))
          (index (pptx:add-picture bytes type))
          (p (slide:create-picture index))
+         (image-size index:image-dimension)
          (page-size pptx:page-size)
          (anchor p:anchor))
+    (when (> image-size:width (* page-size:width 0.9))
+      (image-size:set-size
+       (* page-size:width 0.9)
+       (/ (* image-size:height page-size:width 0.9) image-size:width)))
+    (when (> image-size:height (* page-size:height 0.7))
+      (image-size:set-size
+       (/ (* image-size:width page-size:height 0.7) image-size:height)
+       (* page-size:height 0.7)))
     (anchor:set-rect
-     (/ (- page-size:width anchor:width) 2)
-     0
-     anchor:width anchor:height)
+     (/ (- page-size:width image-size:width) 2)
+     (/ (- page-size:height image-size:height) 2)
+     image-size:width image-size:height)
     (set! p:anchor anchor)))
 
 (define (insert-paragraph (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
