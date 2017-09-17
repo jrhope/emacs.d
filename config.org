@@ -1542,6 +1542,13 @@ and makes paredit complain.  So, use scsh-mode instead.
     :mode ("\\.spl\\'" . spl-mode))
 #+END_SRC
 
+*** Julia
+
+#+BEGIN_SRC emacs-lisp
+  (use-package julia-mode :ensure t
+    :mode ("\\.jl\\'"))
+#+END_SRC
+
 *** Maxima
 
 #+BEGIN_SRC emacs-lisp
