@@ -123,7 +123,7 @@
    (expand-file-name "~/java/poi/ooxml-schemas-1.3.jar"))
   "List of jar files to use as classpath for Kawa + POI."
   :group 'org-export-pptx
-  :type '(list (file :must-match t)))
+  :type '(repeat (file :must-match t)))
 
 
 ;;; Internal Functions
