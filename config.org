@@ -1638,8 +1638,8 @@ This is influenced by javap-mode (but uses the original buffer) and by
     :mode "\\.class\\'"
     :commands bytecode-handler
     :init
-    (setq bytecode-mode-classpath `(,(jrh/kawa-classpath nil))
-          bytecode-mode-initially-verbose nil)
+    (setq bytecode-mode-classpath
+          `(,(expand-file-name "~/java/Kawa/lib/kawa.jar")))
     (add-to-list 'file-name-handler-alist
                  '("\\.class\\'" . bytecode-handler)))
 #+END_SRC
