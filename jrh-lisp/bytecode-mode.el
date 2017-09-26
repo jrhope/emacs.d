@@ -252,7 +252,8 @@ verbosity."
     (re-search-forward "^Attributes (count:")
     (forward-line (cadr loc))
     (move-to-column (caddr loc))))
-  (recenter))
+  ;(recenter)
+  )
 
 (defun bytecode-revert-buffer (file-name auto-save-p)
   (let ((loc (bytecode-mode--where-am-i)))
