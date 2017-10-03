@@ -1673,6 +1673,13 @@ only supports v0.1.0:
     :functions (toml:read-from-string toml:read-from-file))
 #+END_SRC
 
+*** AsciiDoc
+
+#+BEGIN_SRC emacs-lisp
+  (use-package adoc-mode :ensure t :defer t
+    :commands adoc-mode)
+#+END_SRC
+
 * Org
 
 Org mode is the center of the universe.  It feels strange to be
