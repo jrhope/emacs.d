@@ -149,6 +149,7 @@
     (define-key map (kbd "r") 'revert-buffer)
     (define-key map (kbd "n") 'forward-paragraph)
     (define-key map (kbd "p") 'backward-paragraph)
+    (define-key map (kbd "RET") 'bytecode-visit-source)
     map)
   "Keymap used by `bytecode-mode'.")
 
@@ -271,6 +272,81 @@ verbosity."
   (interactive)
   (setq-local bytecode-verbose (not bytecode-verbose))
   (bytecode-revert-buffer (buffer-file-name) nil))
+
+(defun bytecode-mode--source-file ()
+  (let* ((cfile (buffer-file-name))
+         (cfilebase (file-name-nondirectory cfile))
+         (sfile-attr
+          (save-excursion
+            (beginning-of-buffer)
+            (if bytecode-verbose
+                (re-search-forward "^Attribute \"SourceFile\", length:[0-9]+, #[0-9]+=")
+              (re-search-forward "^Attribute \"SourceFile\", length:[0-9]+, "))
+            (if (looking-at "\"\\(.*\\)\"$")
+                (match-string 1)
+              nil)))
+         (sfilebase (or sfile-attr
+                        (replace-regexp-in-string "\\.class$" ".java" cfilebase)))
+         (here-sfile (expand-file-name sfilebase)))
+    (if (file-readable-p here-sfile)
+        here-sfile
+      (let* ((cmake-build-dir (locate-dominating-file cfile "CMakeCache.txt"))
+             (cmake-src-dir
+              (and cmake-build-dir
+                   (car
+                    (split-string
+                     (shell-command-to-string
+                      (concat "grep \"CMAKE_HOME_DIRECTORY:INTERNAL=\" "
+                              (expand-file-name "CMakeCache.txt" cmake-build-dir)
+                              " | sed 's/CMAKE_HOME_DIRECTORY:INTERNAL=//'"))))))
+             (repo-sfile
+              (and cmake-src-dir
+                   (car
+                    (split-string
+                     (shell-command-to-string
+                      (concat "find " cmake-src-dir " -name " sfilebase)))))))
+        (or repo-sfile sfilebase)))))
+
+(defun bytecode-visit-source ()
+  "Attempt to visit the source file corresponding to the bytecode file
+being viewed."
+  (interactive)
+  (let* ((src-file (bytecode-mode--source-file))
+         (loc (save-excursion (bytecode-mode--where-am-i)))
+         (sline
+          (if (not (eq 'methods (car loc)))
+              1
+            (let* ((my-line (line-number-at-pos))
+                   (my-pc
+                    (save-excursion
+                      (progn
+                        (beginning-of-line)
+                        (if (looking-at "^ *\\([0-9]+\\): ")
+                            (string-to-number (match-string 1))
+                          0))))
+                   (p-before (save-excursion (progn (backward-paragraph) (point))))
+                   (p-after  (save-excursion (progn (forward-paragraph)  (point)))))
+              (save-excursion
+                (goto-char p-before)
+                (if (not (re-search-forward "^Attribute \"LineNumberTable\""
+                                            p-after t))
+                    1
+                  (let ((line 1))
+                    (while
+                        (progn
+                          (forward-line 1)
+                          (cond ((>= (point) p-after) nil)
+                                ((looking-at-p "^$") nil)
+                                ((looking-at "^ *line: *\\([0-9]+\\) at pc: *\\([0-9]+\\)")
+                                 (let ((ln (string-to-number (match-string 1)))
+                                       (pc (string-to-number (match-string 2))))
+                                   (when (<= pc my-pc)
+                                     (progn (setq line ln) t))))
+                                (t nil))))
+                    line)))))))
+    (when src-file
+      (find-file src-file)
+      (goto-line sline))))
 
 ;;;###autoload
 (define-derived-mode bytecode-mode special-mode "Bytecode"
