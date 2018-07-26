@@ -27,6 +27,9 @@
 
   (let* ((f (file-name-nondirectory (buffer-file-name)))
          (ext (file-name-extension f)))
+    (when (string= ext "in")
+      (setq f (file-name-sans-extension f))
+      (setq ext (file-name-extension f)))
     (when (member ext '("h" "hpp"))
       (let ((def (upcase (replace-regexp-in-string "[.]" "_" f))))
         (insert "#ifndef ") (insert def) (newline)
