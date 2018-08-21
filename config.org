@@ -1680,6 +1680,13 @@ only supports v0.1.0:
     :commands adoc-mode)
 #+END_SRC
 
+*** Gnuplot
+
+#+BEGIN_SRC emacs-lisp
+  (use-package gnuplot :ensure t :defer t
+    :commands gnuplot-mode)
+#+END_SRC
+
 * Org
 
 Org mode is the center of the universe.  It feels strange to be
