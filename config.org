@@ -1687,6 +1687,12 @@ only supports v0.1.0:
     :commands gnuplot-mode)
 #+END_SRC
 
+*** Lua
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lua-mode :ensure t :mode ("\\.lua\\'" . lua-mode))
+#+END_SRC
+
 * Org
 
 Org mode is the center of the universe.  It feels strange to be
