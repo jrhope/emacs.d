@@ -1,5 +1,10 @@
 ;;; Emacs init file.
 
+;;; Put MacPorts bin dir in PATH.
+(when (eq system-type 'darwin)
+  (push "/opt/local/bin" exec-path)
+  (setenv "PATH" (concat "/opt/local/bin:" (getenv "PATH"))))
+
 ;;; Turn off Press and Hold
 (when (and (fboundp 'ns-set-resource) (display-graphic-p))
   (ns-set-resource nil "ApplePressAndHoldEnabled" "NO"))
