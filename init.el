@@ -164,13 +164,6 @@
      (latex . t)
      (plantuml . t)))
 
-  ;; Allow a hyphen before emphasized text in org-mode, to allow
-  ;; things like "non-~NULL~".
-  (org-set-emph-re
-   'org-emphasis-regexp-components
-   (cons (concat "-" (car org-emphasis-regexp-components))
-         (cdr org-emphasis-regexp-components)))
-
   ;; Load config.org, where the bulk of settings and package loads
   ;; are.
   (org-babel-load-file
