@@ -1936,11 +1936,9 @@ using Markdown syntax rather than inheriting the HTML transcoders.
       (if (org-export-table-row-ends-header-p table-row info)
           (concat contents "\n"
                   (mapconcat 'identity
-                             (make-list
-                              (cdr (org-export-table-dimensions
-                                    (org-export-get-parent-table table-row)
-                                    info))
-                              "---") " | "))
+                             (mapcar '(lambda (s) (make-string (length s) ?-))
+                                     (split-string contents " | "))
+                             " | "))
         (if contents contents "")))
     (push '(table-row . jrh/org-md-table-row)
           (org-export-backend-transcoders (org-export-get-backend 'md))))
