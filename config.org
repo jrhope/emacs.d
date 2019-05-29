@@ -1927,8 +1927,8 @@ using Markdown syntax rather than inheriting the HTML transcoders.
 
     (defun jrh/org-md-table-cell (table-cell contents info)
       (if (org-export-table-cell-ends-colgroup-p table-cell info)
-          (format "%s" contents)
-        (format "%s | " contents)))
+          (format "%s" (or contents "&nbsp;"))
+        (format "%s | " (or contents "&nbsp;"))))
     (push '(table-cell . jrh/org-md-table-cell)
           (org-export-backend-transcoders (org-export-get-backend 'md)))
 
