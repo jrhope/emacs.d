@@ -244,8 +244,11 @@ I borrowed this one from Liam Healy and then tweaked it.
 
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (unless (package-installed-p 'diminish)
+    (package-refresh-contents)
+    (package-install 'diminish))
   (eval-when-compile
     (require 'use-package))
   (require 'diminish)                ;; if you use :diminish
