@@ -437,7 +437,8 @@
                    (p (c:add-new-text-paragraph)))
               (set! c:text-autofit
                     org.apache.poi.sl.usermodel.TextShape$TextAutofit:SHAPE)
-              (add-text p (cadar cells) (= i 0))
+              (do ((texts (cdar cells) (cdr texts))) ((null? texts))
+                (add-text p (car texts) (= i 0)))
               (c:set-border-color
                org.apache.poi.sl.usermodel.TableCell$BorderEdge:top
                java.awt.Color:white)
