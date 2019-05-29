@@ -1136,6 +1136,12 @@ Insert license header text with =M-x lice=.
 
 http://stackoverflow.com/a/35901089
 
+*** NHexl
+
+#+BEGIN_SRC emacs-lisp
+  (use-package nhexl-mode :ensure t)
+#+END_SRC
+
 ** Major Modes
 *** CMake
 
