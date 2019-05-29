@@ -10,6 +10,7 @@
 ;;; Define constants.
 
 (define-constant *title* ::String %t)
+(define-constant *subtitle* ::String %s)
 (define-constant *date*  ::java.util.Date (java.util.Date%d))
 (define-constant *now*   ::java.util.Date (java.util.Date))
 (define-constant *disp-date* ::String
@@ -71,7 +72,8 @@
 ;;; update-contents performs a search and replace for the title, name,
 ;;; and date strings within an array of shapes.
 
-(define (update-contents shapes ::java.util.List[org.apache.poi.xslf.usermodel.XSLFShape])
+(define (update-contents shapes ::java.util.List[org.apache.poi.xslf.usermodel.XSLFShape]
+                         #!optional (withsubtitle ::boolean #f))
   (for-each
    (lambda (shape ::org.apache.poi.xslf.usermodel.XSLFShape)
      (cond
@@ -82,7 +84,12 @@
            (lambda (run ::org.apache.poi.xslf.usermodel.XSLFTextRun)
              (when (run:raw-text:contains "Presentation Title")
                (set! run:text
-                     (run:raw-text:replace-all "Presentation Title" *title*)))
+                     (run:raw-text:replace-all "Presentation Title"
+                                               (if withsubtitle
+                                                   (string-append *title*
+                                                                  "\n\n"
+                                                                  *subtitle*)
+                                                   *title*))))
              (when (run:raw-text:contains "13 June 2016")
                (set! run:text
                      (run:raw-text:replace-all "13 June 2016" *disp-date*)))
@@ -114,7 +121,8 @@
 ;;; Update Custom Title Page
 
 (update-contents (->org.apache.poi.xslf.usermodel.XSLFSheet
-                  (pptx:slides 0)):shapes)
+                  (pptx:slides 0)):shapes
+                  (not (eq? #!null *subtitle*)))
 
 ;;; Remove other pages
 
@@ -142,6 +150,7 @@
   (set! props:modified (->String #!null))
   (set! props:revision "0")
   (set! props:title *title*)
+  (if *subtitle* (set! props:subject-property *subtitle*))
   (let ((under ::org.apache.poi.openxml4j.opc.internal.PackagePropertiesPart
                props:underlying-properties))
     (set! under:last-modified-by-property #!null)))

@@ -148,7 +148,10 @@
                        (cons '("\\.pptx\\'" . system) org-file-apps)))
                   (org-open-file
                    (org-pptx-export-to-pptx nil s v b) nil)))))
-        (?s "To Scheme file" org-pptx-export-to-scm))))
+        (?s "To Scheme file" org-pptx-export-to-scm)))
+
+  :options-alist
+  '((:subtitle "SUBTITLE" nil nil parse)))
 
 
 ;;; User Configurable Variables
@@ -704,6 +707,8 @@ export options."
     (let ((template (org-file-contents org-pptx-template-kawa-file))
           (spec `((?T . ,org-pptx-prototype-pptx-file)
                   (?t . ,(org-export-data (plist-get info :title) info))
+                  (?s . ,(let ((s (org-export-data (plist-get info :subtitle) info)))
+                           (if s s "#!null")))
                   (?d . ,(let ((d (plist-get info :date)))
                            (if d (format " %s000" (org-export-data d info))
                              "")))
