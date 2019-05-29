@@ -373,6 +373,25 @@
         (let ((t (add-text p (car texts))))
           (set! t:font-color *text-color*))))))
 
+(define (insert-center (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
+                       content)
+  (let* ((s ::org.apache.poi.xslf.usermodel.XSLFTextShape
+            (slide:create-text-box))
+         (p (s:add-new-text-paragraph))
+         (a s:anchor)
+         (page-size pptx:page-size))
+    (a:set-rect (* page-size:width 0.05)
+                (* page-size:height 0.05)
+                (* page-size:width 0.9)
+                (* page-size:height 0.9))
+    (set! s:anchor a)
+    (set! p:text-align
+          org.apache.poi.sl.usermodel.TextParagraph$TextAlign:CENTER)
+    (do ((texts (cdar content) (cdr texts))) ((null? texts))
+      (let ((t (add-text p (car texts))))
+        (set! t:font-color *text-color*)))))
+
+
 (define (insert-table (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
                       caption
                       rows)
@@ -492,6 +511,8 @@
            (insert-table slide (cadr datum) (cddr datum)))
           ((example-block src-block fixed-width)
            (insert-block slide datum))
+          ((center)
+           (insert-center slide (cdr datum)))
           ((latex-environment latex-fragment)
            (insert-image slide (cadr datum))))
         (let* ((ss slide:shapes)
