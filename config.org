@@ -1759,7 +1759,7 @@ variable twice..
 Also, define the =by-backend= macro here.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package ox :no-require t
+  (use-package ox
     :defines org-export-with-email org-export-with-sub-superscripts
     org-export-async-debug
     :config (setq org-export-with-email t
