@@ -543,7 +543,7 @@
         (let* ((ss slide:shapes)
                (ln (ss:size)))
           (if (and (> ln 0)
-                   (not (memq tag '(table src-block example-block fixed-width)))
+                   (not (memq tag '(center table src-block example-block fixed-width)))
                    (org.apache.poi.xslf.usermodel.XSLFTextShape?
                     (ss (- ln 1))))
               (set! last-text-shape (ss (- ln 1)))
