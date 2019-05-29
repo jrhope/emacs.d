@@ -156,6 +156,11 @@
   ;; Open org files fully expanded
   (setq org-startup-folded 'showeverything)
 
+  ;; allow open paren to be a postmatch, and close paren to be a
+  ;; prematch
+  (setq org-emphasis-regexp-components
+        '("- \t()'\"{" "- \t.,:!?;'\"()}\\[" " \t\r\n" "." 1))
+
   ;; Enable these languages to be evaluated in code blocks.
   (org-babel-do-load-languages
    'org-babel-load-languages
