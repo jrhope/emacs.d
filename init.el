@@ -160,9 +160,11 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
+     (ditaa . t)
      (dot . t)
      (latex . t)
-     (plantuml . t)))
+     (plantuml . t)
+     (shell . t)))
 
   ;; Load config.org, where the bulk of settings and package loads
   ;; are.
