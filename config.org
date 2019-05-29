@@ -1052,7 +1052,7 @@ being replaced in popularity by something called smartparens.
 
 *** Auto Completion
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package auto-complete-config :ensure auto-complete
     :bind (:map ac-mode-map
                 (("<C-tab>" . auto-complete)))
@@ -1094,7 +1094,7 @@ This causes as many problems as it solves.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company :ensure t :defer t)
+  (use-package company :ensure t :defer t :init (global-company-mode))
 #+END_SRC
 
 *** Rtags
