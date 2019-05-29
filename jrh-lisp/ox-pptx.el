@@ -635,19 +635,21 @@ holding contextual information."
 
 ;;;; Subscript
 
-(defun org-pptx-subscript (_subscript contents _info)
+(defun org-pptx-subscript (subscript contents _info)
   "Transcode a SUBSCRIPT object from Org to PPTX.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
-  (format "(subscript (plain-text \"%s\"))" contents))
+  (let ((blank (org-element-property :post-blank subscript)))
+    (format "(subscript %s %s)" blank contents)))
 
 ;;;; Superscript
 
-(defun org-pptx-superscript (_superscript contents _info)
+(defun org-pptx-superscript (superscript contents _info)
   "Transcode a SUPERSCRIPT object from Org to PPTX.
 CONTENTS is the contents of the object.  INFO is a plist holding
 contextual information."
-  (format "(superscript (plain-text \"%s\"))" contents))
+  (let ((blank (org-element-property :post-blank superscript)))
+    (format "(superscript %s %s)" blank contents)))
 
 ;;;; Table
 (defun org-pptx-table (table contents info)
