@@ -77,6 +77,67 @@
     (underline . org-pptx-underline)
     (verbatim . org-pptx-verbatim)
     (verse-block . org-pptx-verse-block))
+
+:filters-alist
+  '((:filter-body . ox-pptx-filter-body)
+    (:filter-bold . ox-pptx-filter-bold)
+    (:filter-babel-call . ox-pptx-filter-babel-call)
+    (:filter-center-block . ox-pptx-filter-center-block)
+    (:filter-clock . ox-pptx-filter-clock)
+    (:filter-code . ox-pptx-filter-code)
+    (:filter-comment . ox-pptx-filter-comment)
+    (:filter-comment-block . ox-pptx-filter-comment-block)
+    (:filter-diary-sexp . ox-pptx-filter-diary-sexp)
+    (:filter-drawer . ox-pptx-filter-drawer)
+    (:filter-dynamic-block . ox-pptx-filter-dynamic-block)
+    (:filter-entity . ox-pptx-filter-entity)
+    (:filter-example-block . ox-pptx-filter-example-block)
+    (:filter-export-block . ox-pptx-filter-export-block)
+    (:filter-export-snippet . ox-pptx-filter-export-snippet)
+    (:filter-final-output . ox-pptx-filter-final-output)
+    (:filter-fixed-width . ox-pptx-filter-fixed-width)
+    (:filter-footnote-definition . ox-pptx-filter-footnote-definition)
+    (:filter-footnote-reference . ox-pptx-filter-footnote-reference)
+    (:filter-headline . ox-pptx-filter-headline)
+    (:filter-horizontal-rule . ox-pptx-filter-horizontal-rule)
+    (:filter-inline-babel-call . ox-pptx-filter-inline-babel-call)
+    (:filter-inline-src-block . ox-pptx-filter-inline-src-block)
+    (:filter-inlinetask . ox-pptx-filter-inlinetask)
+    (:filter-italic . ox-pptx-filter-italic)
+    (:filter-item . ox-pptx-filter-item)
+    (:filter-keyword . ox-pptx-filter-keyword)
+    (:filter-latex-environment . ox-pptx-filter-latex-environment)
+    (:filter-latex-fragment . ox-pptx-filter-latex-fragment)
+    (:filter-line-break . ox-pptx-filter-line-break)
+    (:filter-link . ox-pptx-filter-link)
+    (:filter-node-property . ox-pptx-filter-node-property)
+    ;;   omit filter with different args
+    ;;   (:filter-options . ox-pptx-filter-options)
+    (:filter-paragraph . ox-pptx-filter-paragraph)
+    ;;   omit filter with different args
+    ;;   (:filter-parse-tree . ox-pptx-filter-parse-tree)
+    (:filter-plain-list . ox-pptx-filter-plain-list)
+    (:filter-plain-text . ox-pptx-filter-plain-text)
+    (:filter-planning . ox-pptx-filter-planning)
+    (:filter-property-drawer . ox-pptx-filter-property-drawer)
+    (:filter-quote-block . ox-pptx-filter-quote-block)
+    (:filter-radio-target . ox-pptx-filter-radio-target)
+    (:filter-section . ox-pptx-filter-section)
+    (:filter-special-block . ox-pptx-filter-special-block)
+    (:filter-src-block . ox-pptx-filter-src-block)
+    (:filter-statistics-cookie . ox-pptx-filter-statistics-cookie)
+    (:filter-strike-through . ox-pptx-filter-strike-through)
+    (:filter-subscript . ox-pptx-filter-subscript)
+    (:filter-superscript . ox-pptx-filter-superscript)
+    (:filter-table . ox-pptx-filter-table)
+    (:filter-table-cell . ox-pptx-filter-table-cell)
+    (:filter-table-row . ox-pptx-filter-table-row)
+    (:filter-target . ox-pptx-filter-target)
+    (:filter-timestamp . ox-pptx-filter-timestamp)
+    (:filter-underline . ox-pptx-filter-underline)
+    (:filter-verbatim . ox-pptx-filter-verbatim)
+    (:filter-verse-block . ox-pptx-filter-verse-block))
+
   :menu-entry
   '(?p "Export to PowerPoint"
        ((?p "To file" org-pptx-export-to-pptx)
@@ -124,6 +185,12 @@
   "List of jar files to use as classpath for Kawa + POI."
   :group 'org-export-pptx
   :type '(repeat (file :must-match t)))
+
+(defcustom org-pptx-debug-filters
+  nil
+  "Whether to insert debug filter tags in Scheme output."
+  :group 'org-export-pptx
+  :type 'boolean)
 
 
 ;;; Internal Functions
@@ -711,5 +778,172 @@ contextual information."
          (msg (message "%s" (car process)))
          (outfile (org-compile-file scmfile process "pptx" nil logbuf)))
     outfile))
+
+
+(defun ox-pptx-filter-body
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|body|#%s#|/body|#" text) text))
+(defun ox-pptx-filter-bold
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|bold|#%s#|/bold|#" text) text))
+(defun ox-pptx-filter-babel-call
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|bbl|#%s#|/bbl|#" text) text))
+(defun ox-pptx-filter-center-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|cnt|#%s#|/cnt|#" text) text))
+(defun ox-pptx-filter-clock
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|clck|#%s#|/clck|#" text) text))
+(defun ox-pptx-filter-code
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|code|#%s#|/code|#" text) text))
+(defun ox-pptx-filter-comment
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|cmmn|#%s#|/cmmn|#" text) text))
+(defun ox-pptx-filter-comment-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|cmm|#%s#|/cmm|#" text) text))
+(defun ox-pptx-filter-diary-sexp
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|dry|#%s#|/dry|#" text) text))
+(defun ox-pptx-filter-drawer
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|drwr|#%s#|/drwr|#" text) text))
+(defun ox-pptx-filter-dynamic-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|dyn|#%s#|/dyn|#" text) text))
+(defun ox-pptx-filter-entity
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|entt|#%s#|/entt|#" text) text))
+(defun ox-pptx-filter-example-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|exm|#%s#|/exm|#" text) text))
+(defun ox-pptx-filter-export-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|exprt-b|#%s#|/exprt-b|#" text) text))
+(defun ox-pptx-filter-export-snippet
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|exprt-s|#%s#|/exprt-s|#" text) text))
+(defun ox-pptx-filter-final-output
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|fnl|#\n%s#|/fnl|#" text) text))
+(defun ox-pptx-filter-fixed-width
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|fxd|#%s#|/fxd|#" text) text))
+(defun ox-pptx-filter-footnote-definition
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|ftnt-d|#%s#|/ftnt-d|#" text) text))
+(defun ox-pptx-filter-footnote-reference
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|ftnt-r|#%s#|/ftnt-r|#" text) text))
+(defun ox-pptx-filter-headline
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|hdln|#%s#|/hdln|#" text) text))
+(defun ox-pptx-filter-horizontal-rule
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|hrz|#%s#|/hrz|#" text) text))
+(defun ox-pptx-filter-inline-babel-call
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|inln-b|#%s#|/inln-b|#" text) text))
+(defun ox-pptx-filter-inline-src-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|inln-s|#%s#|/inln-s|#" text) text))
+(defun ox-pptx-filter-inlinetask
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|inln|#%s#|/inln|#" text) text))
+(defun ox-pptx-filter-italic
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|itlc|#%s#|/itlc|#" text) text))
+(defun ox-pptx-filter-item
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|item|#%s#|/item|#" text) text))
+(defun ox-pptx-filter-keyword
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|kywr|#%s#|/kywr|#" text) text))
+(defun ox-pptx-filter-latex-environment
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|ltx-n|#%s#|/ltx-n|#" text) text))
+(defun ox-pptx-filter-latex-fragment
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|ltx-f|#%s#|/ltx-f|#" text) text))
+(defun ox-pptx-filter-line-break
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|ln-b|#%s#|/ln-b|#" text) text))
+(defun ox-pptx-filter-link
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|link|#%s#|/link|#" text) text))
+(defun ox-pptx-filter-node-property
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|nd-p|#%s#|/nd-p|#" text) text))
+;; dont (defun ox-pptx-filter-options ...)
+(defun ox-pptx-filter-paragraph
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|prgr|#%s#|/prgr|#" text) text))
+;; dont (defun ox-pptx-filter-parse-tree ...)
+(defun ox-pptx-filter-plain-list
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|pln-l|#%s#|/pln-l|#" text) text))
+(defun ox-pptx-filter-plain-text
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|pln-t|#%s#|/pln-t|#" text) text))
+(defun ox-pptx-filter-planning
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|plnn|#%s#|/plnn|#" text) text))
+(defun ox-pptx-filter-property-drawer
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|prp|#%s#|/prp|#" text) text))
+(defun ox-pptx-filter-quote-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|qt-b|#%s#|/qt-b|#" text) text))
+(defun ox-pptx-filter-radio-target
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|rd-t|#%s#|/rd-t|#" text) text))
+(defun ox-pptx-filter-section
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|sctn|#%s#|/sctn|#" text) text))
+(defun ox-pptx-filter-special-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|spc|#%s#|/spc|#" text) text))
+(defun ox-pptx-filter-src-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|src|#%s#|/src|#" text) text))
+(defun ox-pptx-filter-statistics-cookie
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|stt|#%s#|/stt|#" text) text))
+(defun ox-pptx-filter-strike-through
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|str|#%s#|/str|#" text) text))
+(defun ox-pptx-filter-subscript
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|sbsc|#%s#|/sbsc|#" text) text))
+(defun ox-pptx-filter-superscript
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|sprs|#%s#|/sprs|#" text) text))
+(defun ox-pptx-filter-table
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|tabl|#%s#|/tabl|#" text) text))
+(defun ox-pptx-filter-table-cell
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|tbl-c|#%s#|/tbl-c|#" text) text))
+(defun ox-pptx-filter-table-row
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|tbl-r|#%s#|/tbl-r|#" text) text))
+(defun ox-pptx-filter-target
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|trgt|#%s#|/trgt|#" text) text))
+(defun ox-pptx-filter-timestamp
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|tmst|#%s#|/tmst|#" text) text))
+(defun ox-pptx-filter-underline
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|undr|#%s#|/undr|#" text) text))
+(defun ox-pptx-filter-verbatim
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|vrbt|#%s#|/vrbt|#" text) text))
+(defun ox-pptx-filter-verse-block
+  (text back-end info)
+  (if org-pptx-debug-filters (format "#|vrs|#%s#|/vrs|#" text) text))
+
 
 (provide 'ox-pptx)
