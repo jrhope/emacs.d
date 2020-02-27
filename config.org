@@ -1723,9 +1723,13 @@ if "b" isn't already a template.
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'org-structure-template-alist
-               '("b" "#+BEGIN_EXPORT beamer\n?\n#+END_EXPORT")
+               '("b" . "export beamer")
                t
                #'(lambda (o1 o2) (equal (car o1) (car o2))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
 #+END_SRC
 
 ** Notes and Capturing
