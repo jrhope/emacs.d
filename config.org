@@ -731,7 +731,10 @@ Browse URLs and do Google searches with selected regions.
 
 See [[http://pragmaticemacs.com/emacs/weather-in-emacs/][Weather in Emacs | Pragmatic Emacs]].
 
-#+BEGIN_SRC emacs-lisp
+MELPA doesn't have frame-cmds anymore.  Looks like now I should use
+Quelpa instead: [[https://www.reddit.com/r/emacs/comments/8i0o0m/zoomfrm/][zoom-frm : emacs]].
+
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package frame-cmds :ensure t
     :commands save-frame-config jump-to-frame-config-register)
 
