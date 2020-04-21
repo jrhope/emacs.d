@@ -180,11 +180,13 @@
 (defcustom org-pptx-classpath
   (list
    (expand-file-name "~/java/Kawa/lib/kawa.jar")
-   (expand-file-name "~/java/poi/poi-3.16/poi-3.16.jar")
-   (expand-file-name "~/java/poi/poi-3.16/poi-ooxml-3.16.jar")
-   (expand-file-name "~/java/poi/poi-3.16/poi-ooxml-schemas-3.16.jar")
-   (expand-file-name "~/java/poi/poi-3.16/ooxml-lib/xmlbeans-2.6.0.jar")
-   (expand-file-name "~/java/poi/ooxml-schemas-1.3.jar"))
+   (expand-file-name "~/java/poi/poi-4.1.2/poi-4.1.2.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/poi-ooxml-4.1.2.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/poi-ooxml-schemas-4.1.2.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/ooxml-lib/xmlbeans-3.1.0.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/lib/commons-compress-1.19.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/lib/commons-collections4-4.4.jar")
+   (expand-file-name "~/java/poi/poi-4.1.2/lib/SparseBitSet-1.2.jar"))
   "List of jar files to use as classpath for Kawa + POI."
   :group 'org-export-pptx
   :type '(repeat (file :must-match t)))

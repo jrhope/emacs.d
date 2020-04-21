@@ -143,9 +143,9 @@
 
 ;;; Update core properties.
 
-(let ((props ::org.apache.poi.POIXMLProperties$CoreProperties
+(let ((props ::org.apache.poi.ooxml.POIXMLProperties$CoreProperties
              pptx:properties:core-properties))
-  (set! props:created (org.apache.poi.openxml4j.util.Nullable *now*))
+  (set! props:created (java.util.Optional:of *now*))
   (set! props:creator *author*)
   (set! props:modified (->String #!null))
   (set! props:revision "0")
@@ -153,7 +153,7 @@
   (if *subtitle* (set! props:subject-property *subtitle*))
   (let ((under ::org.apache.poi.openxml4j.opc.internal.PackagePropertiesPart
                props:underlying-properties))
-    (set! under:last-modified-by-property #!null)))
+    (set! under:last-modified-by-property *author*)))
 
 ;;; Save file, then re-open it -- this flushes some obsolete
 ;;; relationships for the slides we just deleted.
@@ -342,6 +342,8 @@
 (define (ext->imgtype ext::String)
   (cond ((string=? ext "png")
          org.apache.poi.sl.usermodel.PictureData$PictureType:PNG)
+        ((string=? ext "svg")
+         org.apache.poi.sl.usermodel.PictureData$PictureType:SVG)
         ((or (string=? ext "jpg") (string=? ext "jpeg"))
          org.apache.poi.sl.usermodel.PictureData$PictureType:JPEG)
         ((string=? ext "gif")
@@ -352,6 +354,10 @@
          org.apache.poi.sl.usermodel.PictureData$PictureType:EPS)
         ((string=? ext "bmp")
          org.apache.poi.sl.usermodel.PictureData$PictureType:BMP)
+        ((string=? ext "emf")
+         org.apache.poi.sl.usermodel.PictureData$PictureType:EMF)
+        ((string=? ext "wmf")
+         org.apache.poi.sl.usermodel.PictureData$PictureType:WMF)
         (else 0)))
 
 (define (insert-image (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
@@ -365,6 +371,25 @@
          (image-size index:image-dimension)
          (page-size pptx:page-size)
          (anchor p:anchor))
+    (when (string=? ext "svg")
+      ;; every svg shows 200x200 as its size, because it's dumb.  So
+      ;; pull out the actual size from the XML.  Yes, DOM is
+      ;; inefficient.
+      (let* ((xmlfile (java.io.File filename))
+             (factory (javax.xml.parsers.DocumentBuilderFactory:newInstance))
+             (builder (factory:newDocumentBuilder))
+             (doc (builder:parse xmlfile))
+             (elem doc:document-element))
+        (elem:normalize)
+        (let ((widthstr  (elem:get-attribute "width"))
+              (heightstr (elem:get-attribute "height")))
+          (when (and (not (string=? widthstr  ""))
+                     (not (string=? heightstr "")))
+            (set! widthstr  (widthstr:replace-all  "px" ""))
+            (set! heightstr (heightstr:replace-all "px" ""))
+            (let ((w (java.lang.Integer:parseInt widthstr))
+                  (h (java.lang.Integer:parseInt heightstr)))
+              (set! image-size (java.awt.Dimension w h)))))))
     (when (> image-size:width (* page-size:width 0.9))
       (image-size:set-size
        (* page-size:width 0.9)
