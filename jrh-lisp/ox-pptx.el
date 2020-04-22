@@ -151,7 +151,8 @@
         (?s "To Scheme file" org-pptx-export-to-scm)))
 
   :options-alist
-  '((:subtitle "SUBTITLE" nil nil parse)))
+  '((:subtitle "SUBTITLE" nil nil parse)
+    (:inkscape nil "inkscape" org-pptx-inkscape)))
 
 
 ;;; User Configurable Variables
@@ -196,6 +197,22 @@
   "Whether to insert debug filter tags in Scheme output."
   :group 'org-export-pptx
   :type 'boolean)
+
+(defcustom org-pptx-inkscape
+  nil
+  "Non-nil means convert SVG images to another format using inkscape.
+
+This option can also be set with the +OPTIONS line,
+e.g. \"inkscape:emf\".  Allowed values are:
+
+nil        Insert original SVGs in presentation.
+`emf'      Convert to emf via inkscape -M
+`wmf'      Convert to wmf via inkscape -m"
+  :group 'org-export-pptx
+  :type '(choice
+          (const :tag "Do not convert SVG files" nil)
+          (const :tag "Convert to emf" emf)
+          (const :tag "Convert to wmf" wmf)))
 
 
 ;;; Internal Functions
@@ -479,18 +496,35 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 
 ;;;; Link
 
-(defun org-pptx-link (link desc _info)
+(defun org-pptx-link (link desc info)
   "Transcode a LINK element from Org to PPTX.
 DESC is the description part of the link, or the empty string.
 INFO is a plist holding contextual information.  See
 `org-export-data'."
   (let ((type (org-element-property :type link))
-        (path (org-element-property :path link)))
+        (path (org-element-property :path link))
+        (svg  (plist-get info :inkscape)))
     (if (and (string= type "file")
-             (or (string-match "\\.png\\'" path)
-                 (string-match "\\.svg\\'" path)
-                 (string-match "\\.eps\\'" path)))
-        (format "(img \"%s\")" path)
+             (string-match
+              (concat "\\."
+                      (regexp-opt '("png" "svg" "jpg" "jpeg" "gif"
+                                    "tiff" "eps" "bmp" "emf" "wmf"))
+                      "\\'")
+              path))
+        (progn
+          (when (and (string-match "\\.svg\\'" path) svg)
+            (let ((exe (org-check-external-command "inkscape" "" t)))
+              (if (not exe)
+                  (message "Inkscape not availabe to convert SVG.")
+                (let* ((newpath (replace-regexp-in-string
+                                 "\\.svg\\'" (format ".%s" svg) path))
+                       (cmd (format "%s --file=%s --export-%s=%s" exe
+                                    path svg newpath)))
+                  (message "Executing %s" cmd)
+                  (let ((cmd-output (shell-command-to-string cmd)))
+                    (message "%s" cmd-output))
+                  (setq path newpath)))))
+          (format "(img \"%s\")" path))
       (format "(link \"%s\" \"%s\" %s)" type path
               (or desc
                   (format "(plain-text \"%s:%s\")" type path))))))
