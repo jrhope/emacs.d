@@ -471,7 +471,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                (string-match "file:\\([^]]*\\.png\\)" formula-link))
       (format "(latex-environment \"%s\" (code 0 (plain-text \"%s\")))"
               (match-string 1 formula-link)
-              latex-frag))))
+              (org-pptx--escape-text latex-frag)))))
 
 ;;;; Latex Fragment
 
@@ -485,7 +485,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                (string-match "file:\\([^]]*\\.png\\)" formula-link))
       (format "(latex-fragment \"%s\" (code 1 (plain-text \"%s\")))"
               (match-string 1 formula-link)
-              latex-frag))))
+              (org-pptx--escape-text latex-frag)))))
 
 ;;;; Line Break
 
