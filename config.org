@@ -1923,6 +1923,14 @@ using Markdown syntax rather than inheriting the HTML transcoders.
     (push '(export-snippet . jrh/org-md-export-snippet)
           (org-export-backend-transcoders (org-export-get-backend 'md)))
 
+    (defun jrh/org-md-latex-fragment (latex-fragment _contents info)
+      (let ((res (org-html-latex-fragment latex-fragment _contents info)))
+        (if (and res (string-match "\\\\(\\(.*\\)\\\\)" res))
+            (format "\\f$%s\\f$" (match-string 1 res))
+          res)))
+    (push '(latex-fragment . jrh/org-md-latex-fragment)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
     (defun jrh/org-md-table (table contents info)
       (if (eq (org-element-property :type table) 'table.el)
           ;; "table.el" table, use the HTML exporter
