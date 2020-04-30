@@ -1931,6 +1931,14 @@ using Markdown syntax rather than inheriting the HTML transcoders.
     (push '(latex-fragment . jrh/org-md-latex-fragment)
           (org-export-backend-transcoders (org-export-get-backend 'md)))
 
+    (defun jrh/org-md-link (link contents info)
+      (let ((res (org-md-link link contents info)))
+        (if (and res (string-match "!\\[img\\](\\(.*\\))" res))
+            (format "![](%s)" (match-string 1 res))
+          res)))
+    (push '(link . jrh/org-md-link)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
     (defun jrh/org-md-table (table contents info)
       (if (eq (org-element-property :type table) 'table.el)
           ;; "table.el" table, use the HTML exporter
