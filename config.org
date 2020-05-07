@@ -1932,6 +1932,17 @@ using Markdown syntax rather than inheriting the HTML transcoders.
     (push '(latex-fragment . jrh/org-md-latex-fragment)
           (org-export-backend-transcoders (org-export-get-backend 'md)))
 
+    (defun jrh/org-md-latex-environment (latex-environment contents info)
+      "Transcode a LATEX-ENVIRONMENT element from Org to Markdown.
+  CONTENTS is nil.  INFO is a plist holding contextual information."
+      (let ((res (org-html-latex-environment latex-environment contents info)))
+        (when (and res (string-match "^\\\\begin{\\(.*\\)}\\(.*\\(?:\n.*\\)*?\\)\\\\end{\\1}\n$" res))
+          (setq res (concat "\\f{" (match-string 1 res) "}{" (match-string 2 res) "\\f}\n")))
+        (message "latex-environment:\n'%s'" res)
+        res))
+    (push '(latex-environment . jrh/org-md-latex-environment)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
     (defun jrh/org-md-link (link contents info)
       (let ((res (org-md-link link contents info)))
         (if (and res (string-match "!\\[img\\](\\(.*\\))" res))
