@@ -1842,6 +1842,7 @@ version.
 #+BEGIN_SRC emacs-lisp
   (use-package ox-latex :no-require t
     :init
+    (setq org-latex-caption-above nil)
   (defun org-latex-compile (texfile &optional snippet)
     "Compile a TeX file.
 
