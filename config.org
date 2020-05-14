@@ -1966,6 +1966,18 @@ using Markdown syntax rather than inheriting the HTML transcoders.
     (push '(link . jrh/org-md-link)
           (org-export-backend-transcoders (org-export-get-backend 'md)))
 
+    (defun jrh/org-md-paragraph (paragraph contents info)
+      (let ((res (org-md-paragraph paragraph contents info)))
+        (if (org-html-standalone-image-p paragraph info)
+            (let ((label (and (org-element-property :name paragraph)
+                              (org-export-get-reference paragraph info))))
+              (if (org-string-nw-p label)
+                  (org-html--wrap-image res info nil label)
+                res))
+          res)))
+    (push '(paragraph . jrh/org-md-paragraph)
+          (org-export-backend-transcoders (org-export-get-backend 'md)))
+
     (defun jrh/org-md-table (table contents info)
       (if (eq (org-element-property :type table) 'table.el)
           ;; "table.el" table, use the HTML exporter
