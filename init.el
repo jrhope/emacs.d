@@ -32,7 +32,7 @@
       ((executable-find "contacts")
        (setq user-mail-address
              (shell-command-to-string
-              "contacts -Hmf %we | tr -d \" \\n\""))))
+              "contacts -Hmlf %we | tr -d \" \\n\""))))
 
 ;;; Always send mail via mailclient on Mac
 (when (eq system-type 'darwin)
