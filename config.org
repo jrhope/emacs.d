@@ -1705,6 +1705,12 @@ only supports v0.1.0:
   (use-package lua-mode :ensure t :mode ("\\.lua\\'" . lua-mode))
 #+END_SRC
 
+*** CSV
+
+#+begin_src emacs-lisp
+  (use-package csv-mode :ensure t :mode ("\\.csv\\'" . csv-mode))
+#+end_src
+
 * Org
 
 Org mode is the center of the universe.  It feels strange to be
