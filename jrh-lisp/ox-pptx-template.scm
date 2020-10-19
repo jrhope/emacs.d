@@ -575,7 +575,10 @@
           ((paragraph)
            (insert-paragraph slide (cdr datum) last-text-shape))
           ((plain-list)
-           (let* ((s (or last-text-shape (slide:create-text-box)))
+           (let* ((s (or last-text-shape
+                         (let ((s (slide:create-text-box)))
+                           (s:clear-text)
+                           s)))
                   (a s:anchor)
                   (page-size pptx:page-size))
              (a:set-rect (* page-size:width 0.05)
