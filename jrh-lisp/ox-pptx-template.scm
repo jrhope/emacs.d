@@ -71,6 +71,11 @@
          (pptx:slides 2)):shapes 1)):text-paragraphs 0)):text-runs
          0)):font-color)
 
+(define-constant *page-size*
+  (((->org.apache.poi.xslf.usermodel.XSLFSlideMaster
+     (pptx:slide-masters 0)):get-layout
+     org.apache.poi.xslf.usermodel.SlideLayout:TITLE_AND_CONTENT):get-placeholder 1):anchor)
+
 ;;; update-contents performs a search and replace for the title, name,
 ;;; and date strings within an array of shapes.
 
@@ -375,7 +380,6 @@
          (index (pptx:add-picture bytes type))
          (p (slide:create-picture index))
          (image-size index:image-dimension)
-         (page-size pptx:page-size)
          (anchor p:anchor))
     (when (string=? ext "svg")
       ;; every svg shows 200x200 as its size, because it's dumb.  So
@@ -396,17 +400,17 @@
             (let ((w (java.lang.Integer:parseInt widthstr))
                   (h (java.lang.Integer:parseInt heightstr)))
               (set! image-size (java.awt.Dimension w h)))))))
-    (when (> image-size:width (* page-size:width 0.9))
+    (when (> image-size:width *page-size*:width)
       (image-size:set-size
-       (* page-size:width 0.9)
-       (/ (* image-size:height page-size:width 0.9) image-size:width)))
-    (when (> image-size:height (* page-size:height 0.7))
+       *page-size*:width
+       (/ (* image-size:height *page-size*:width) image-size:width)))
+    (when (> image-size:height *page-size*:height)
       (image-size:set-size
-       (/ (* image-size:width page-size:height 0.7) image-size:height)
-       (* page-size:height 0.7)))
+       (/ (* image-size:width *page-size*:height) image-size:height)
+       *page-size*:height))
     (anchor:set-rect
-     (/ (- page-size:width image-size:width) 2)
-     (/ (- page-size:height image-size:height) 2)
+     (+ *page-size*:x (/ (- *page-size*:width image-size:width) 2))
+     (+ *page-size*:y (/ (- *page-size*:height image-size:height) 2))
      image-size:width image-size:height)
     (set! p:anchor anchor)))
 
@@ -416,15 +420,14 @@
     (if (equal? 'img (caar lst))
         (insert-image slide (cadar lst))
         (let* ((s ::org.apache.poi.xslf.usermodel.XSLFTextShape
-                  (or s (slide:create-text-box)))
-               (p (s:add-new-text-paragraph))
-               (a s:anchor)
-               (page-size pptx:page-size))
-          (a:set-rect (* page-size:width 0.05)
-                      (* page-size:height 0.05)
-                      (* page-size:width 0.9)
-                      (* page-size:height 0.9))
-          (set! s:anchor a)
+                  (or s
+                      (let ((s (slide:create-text-box)))
+                        (s:clear-text)
+                        (set! s:text-autofit
+                              org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+                        s)))
+               (p (s:add-new-text-paragraph)))
+          (set! s:anchor *page-size*)
           (do ((texts lst (cdr texts))) ((null? texts))
             (let ((t (add-text p (car texts))))
               (set! t:font-color *text-color*)))))))
@@ -432,15 +435,13 @@
 (define (insert-center (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
                        content)
   (let* ((s ::org.apache.poi.xslf.usermodel.XSLFTextShape
-            (slide:create-text-box))
-         (p (s:add-new-text-paragraph))
-         (a s:anchor)
-         (page-size pptx:page-size))
-    (a:set-rect (* page-size:width 0.05)
-                (* page-size:height 0.05)
-                (* page-size:width 0.9)
-                (* page-size:height 0.9))
-    (set! s:anchor a)
+            (let ((s (slide:create-text-box)))
+              (s:clear-text)
+              (set! s:text-autofit
+                    org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+              s))
+         (p (s:add-new-text-paragraph)))
+    (set! s:anchor *page-size*)
     (set! p:text-align
           org.apache.poi.sl.usermodel.TextParagraph$TextAlign:CENTER)
     (do ((texts (cdar content) (cdr texts))) ((null? texts))
@@ -452,13 +453,7 @@
                       caption
                       rows)
   (let ((s (slide:create-table)))
-    (let ((a s:anchor)
-          (page-size pptx:page-size))
-      (a:set-rect (* page-size:width 0.05)
-                  (* page-size:height 0.05)
-                  (* page-size:width 0.9)
-                  (* page-size:height 0.9))
-      (set! s:anchor a))
+    (set! s:anchor *page-size*)
     ((s:getCTTable):setTblPr *table-style*)
     (do ((rows rows (cdr rows)) (i 0 (+ i 1))) ((null? rows))
       (unless (equal? (car rows) '(row nil))
@@ -534,7 +529,12 @@
                                   (set! w this-w)
                                   (set! w+1 this-w+1))))))))
                     (when (not (equal? '((plain-text "")) caption))
-                      (let* ((cap (slide:create-text-box))
+                      (let* ((cap
+                              (let ((s (slide:create-text-box)))
+                                (s:clear-text)
+                                (set! s:text-autofit
+                                      org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+                                s))
                              (p (cap:add-new-text-paragraph))
                              (a2 cap:anchor))
                         (for-each
@@ -551,16 +551,15 @@
 
 (define (insert-block (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
                       block)
-  (let* ((s (slide:create-text-box))
+  (let* ((s
+          (let ((s (slide:create-text-box)))
+            (s:clear-text)
+            (set! s:text-autofit
+                  org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+            s))
          (p (s:add-new-text-paragraph))
-         (t (p:add-new-text-run))
-         (a s:anchor)
-         (page-size pptx:page-size))
-    (a:set-rect (* page-size:width 0.05)
-                (* page-size:height 0.05)
-                (* page-size:width 0.9)
-                (* page-size:height 0.9))
-    (set! s:anchor a)
+         (t (p:add-new-text-run)))
+    (set! s:anchor *page-size*)
     (set! t:font-family "Courier")
     (set! t:text (cadr block))))
 
@@ -578,19 +577,17 @@
            (let* ((s (or last-text-shape
                          (let ((s (slide:create-text-box)))
                            (s:clear-text)
-                           s)))
-                  (a s:anchor)
-                  (page-size pptx:page-size))
-             (a:set-rect (* page-size:width 0.05)
-                         (* page-size:height 0.05)
-                         (* page-size:width 0.9)
-                         (* page-size:height 0.9))
-             (set! s:anchor a)
+                           (set! s:text-autofit
+                                 org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+                           s))))
+             (set! s:anchor *page-size*)
              (set! s:bottom-inset *text-shape-bottom-inset*)
              (set! s:left-inset *text-shape-left-inset*)
              (set! s:right-inset *text-shape-right-inset*)
              (set! s:top-inset *text-shape-top-inset*)
-             (insert-list s (list datum) #t)))
+             (insert-list s (list datum) #t)
+             (set! s:text-autofit
+                   org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)))
           ((table)
            (insert-table slide (cadr datum) (cddr datum)))
           ((example-block src-block fixed-width)
@@ -618,21 +615,58 @@
       (when (? s::org.apache.poi.xslf.usermodel.XSLFTextShape
                (slide:shapes i))
         (s:resize-to-fit-text)))
-    (let loop ((i ::int 1) (n ::int (slide:shapes:size))
-               (h ::double 0))
-         (if (= i n)
-             (let* ((page-size pptx:page-size)
-                    (d (/ (- page-size:height h) 2)))
-               (do ((i 1 (+ i 1))) ((= i n))
-                 (let* ((s (->org.apache.poi.xslf.usermodel.XSLFShape
-                            (slide:shapes i)))
-                        (a s:anchor))
-                   (a:set-rect a:x (+ a:y d) a:width a:height)
-                   (set! s:anchor a))))
-             (let ((a (slide:shapes i):anchor))
-               (a:set-rect a:x (+ h 20) a:width a:height)
-               (set! (slide:shapes i):anchor a)
-               (loop (+ i 1) n (+ h 20 a:height)))))))
+    (let repeat ((repeat-count 0))
+      (let loop ((i ::int 1) (n ::int (slide:shapes:size))
+                 (h ::double 0))
+        (if (= i n)
+            (let ((d (/ (- *page-size*:height h -20) 2)))
+              (if (< d -0.5)
+                  (let ((scale (/ *page-size*:height (- h 20)))
+                        (y *page-size*:y))
+                    (do ((i 1 (+ i 1))) ((= i n))
+                      (let* ((s (->org.apache.poi.xslf.usermodel.XSLFShape
+                                 (slide:shapes i)))
+                             (a s:anchor))
+                        (cond ((? ts::org.apache.poi.xslf.usermodel.XSLFTextShape s)
+                               (! origh a:height)
+                               (set! ts:text-autofit
+                                     org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
+                               (a:set-rect a:x y a:width (* scale a:height))
+                               (set! ts:anchor a)
+                               ;; (ts:resize-to-fit-text)
+                               ;; (when (= origh ts:anchor:height)
+                               ;;   (a:set-rect a:x y a:width
+                               ;;               (* scale origh 0.5))
+                               ;;   (set! ts:anchor a))
+                               (set! y (+ y ts:anchor:height)))
+                              ((? ps::org.apache.poi.xslf.usermodel.XSLFPictureShape s)
+                               (let ((scale (- 1 (* 0.25 (- 1 scale)))))
+                                 (if (> (* scale a:height)
+                                        (/ *page-size*:height 2))
+                                     (a:set-rect
+                                      (+ a:x (/ (* (- 1 scale) a:width) 2))
+                                      y
+                                      (* scale a:width)
+                                      (* scale a:height))
+                                     (a:set-rect a:x y a:width a:height)))
+                               (set! ps:anchor a)
+                               (set! y (+ y a:height)))
+                              (else
+                               (a:set-rect a:x y a:width (* scale a:height))
+                               (set! s:anchor a)
+                               (set! y (+ y a:height))))))
+                    (when (< repeat-count 10)
+                      (repeat (+ repeat-count 1))))
+                  (do ((i 1 (+ i 1))) ((= i n))
+                    (let* ((s (->org.apache.poi.xslf.usermodel.XSLFShape
+                               (slide:shapes i)))
+                           (a s:anchor))
+                      (a:set-rect a:x (+ *page-size*:y a:y d) a:width a:height)
+                      (set! s:anchor a)))))
+            (let ((a (slide:shapes i):anchor))
+              (a:set-rect a:x h a:width a:height)
+              (set! (slide:shapes i):anchor a)
+              (loop (+ i 1) n (+ h 20 a:height))))))))
 
 
 (define (create-slide title content)
