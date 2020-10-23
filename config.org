@@ -1663,9 +1663,7 @@ See also where org-babel-load-languages is set in [[file:init.el]].
 #+BEGIN_SRC emacs-lisp
   (use-package plantuml-mode :ensure t
     :init
-    (setq org-plantuml-jar-path
-          (expand-file-name "~/java/plantuml/plantuml.1.2017.13.jar")
-          plantuml-jar-path org-plantuml-jar-path))
+    (setq plantuml-jar-path org-plantuml-jar-path))
 #+END_SRC
 
 *** TOML
