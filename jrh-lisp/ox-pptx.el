@@ -544,7 +544,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode a PARAGRAPH element from Org to PPTX.
 CONTENTS is the contents of the paragraph, as a string.  INFO is a
 plist holding contextual information."
-  (format "(paragraph %s)" contents))
+  (if (string= contents "") ""
+    (format "(paragraph %s)" contents)))
 
 ;;;; Plain List
 
