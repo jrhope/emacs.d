@@ -659,7 +659,7 @@
                                         (for-each
                                          (lambda (run ::org.apache.poi.xslf.usermodel.XSLFTextRun)
                                            (run:set-font-size
-                                            (* run:font-size scale)))
+                                            (java.lang.Math:max 1.0d0 (* run:font-size scale))))
                                          paragraph:text-runs))
                                       cell:text-paragraphs))))
                                (tbl:update-cell-anchor)
