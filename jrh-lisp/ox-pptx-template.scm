@@ -448,6 +448,36 @@
       (let ((t (add-text p (car texts))))
         (set! t:font-color *text-color*)))))
 
+(define (optimize-table-columns (tbl ::org.apache.poi.xslf.usermodel.XSLFTable))
+  (let ((nr tbl:number-of-rows) (nc tbl:number-of-columns))
+    (do ((c ::int 0 (+ c 1))) ((= c (- nc 1)))
+      (let ((w-orig (tbl:get-column-width c))
+            (w-orig+1 (tbl:get-column-width (+ c 1)))
+            (h-orig tbl:anchor:height)
+            (th-orig
+             (apply min (list-tabulate
+                         nr
+                         (lambda (r) (tbl:get-cell r c):text-height)))))
+        (let ((w w-orig) (w+1 w-orig+1) (th-best th-orig) (h-best h-orig))
+          (do ((try 8 (- try 1)))
+              ((= try 0)
+               (tbl:set-column-width c w)
+               (tbl:set-column-width (+ c 1) w+1)
+               (tbl:update-cell-anchor))
+            (let* ((this-w   (* try 0.25 w-orig))
+                   (this-w+1 (+ w-orig+1 w-orig (- this-w))))
+              (tbl:set-column-width c this-w)
+              (tbl:set-column-width (+ c 1) this-w+1)
+              (tbl:update-cell-anchor)
+              (let ((th (apply min (list-tabulate
+                                    nr
+                                    (lambda (r) (tbl:get-cell r c):text-height)))))
+                (when (and (<= th th-best)
+                           (<= tbl:anchor:height h-best))
+                  (set! h-best tbl:anchor:height)
+                  (set! th-best th)
+                  (set! w this-w)
+                  (set! w+1 this-w+1))))))))))
 
 (define (insert-table (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
                       caption
@@ -479,55 +509,31 @@
               (c:set-border-color
                org.apache.poi.sl.usermodel.TableCell$BorderEdge:right
                java.awt.Color:white))))))
-    (let ((page-size pptx:page-size)
-          (nc ::int s:number-of-columns)
+    (let ((nc ::int s:number-of-columns)
           (nr ::int s:number-of-rows)
           (a s:anchor))
       (let loop ((w ::double 0) (i ::int 0))
         (if (< i nc)
+            ;; calculate the full width
             (loop (+ w (s:get-column-width i)) (+ i 1))
             (let loop2 ((h ::double 0) (i ::int 0))
               (if (< i nr)
-                  (loop2 (+ h (s:rows i):height) (+ i 1))
+                  ;; calculate the full height
+                  (loop2 (+ h (s:get-row-height i)) (+ i 1))
                   (begin
+                    ;; scale all columns to full page width
                     (do ((i ::int 0 (+ i 1))) ((= i nc))
                       (s:set-column-width
-                       i (* (s:get-column-width i) 0.9
-                            (/ page-size:width w))))
-                    (set! w (* 0.9 page-size:width))
+                       i (* (s:get-column-width i)
+                            (/ *page-size*:width w))))
+                    (set! w *page-size*:width)
                     (a:set-rect
-                     (/ (- page-size:width w) 2) 0 w h)
+                     (+ *page-size*:x (/ (- *page-size*:width w) 2)) *page-size*:y w h)
                     (set! s:anchor a)
                     (s:update-cell-anchor)
-                    (do ((i ::int 0 (+ i 1))) ((= i (- nc 1)))
-                      (let ((w-orig   (s:get-column-width i))
-                            (w-orig+1 (s:get-column-width (+ i 1)))
-                            (h-orig   s:anchor:height)
-                            (th-orig
-                             (apply min (list-tabulate
-                                         nr
-                                         (lambda (j) (s:get-cell j i):text-height)))))
-                        (let ((w w-orig) (w+1 w-orig+1) (th-best th-orig)
-                              (h-best h-orig))
-                          (do ((try 8 (- try 1)))
-                              ((= try 0)
-                               (s:set-column-width i w)
-                               (s:set-column-width (+ i 1) w+1)
-                               (s:update-cell-anchor))
-                            (let* ((this-w (* try 0.25 w-orig))
-                                   (this-w+1 (+ w-orig+1 w-orig (- this-w))))
-                              (s:set-column-width i this-w)
-                              (s:set-column-width (+ i 1) this-w+1)
-                              (s:update-cell-anchor)
-                              (let ((th (apply min (list-tabulate
-                                                    nr
-                                                    (lambda (j) (s:get-cell j i):text-height)))))
-                                (when (and (<= th th-best)
-                                           (<= s:anchor:height h-best))
-                                  (set! h-best s:anchor:height)
-                                  (set! th th-best)
-                                  (set! w this-w)
-                                  (set! w+1 this-w+1))))))))
+                    ;; adjust relative column widths to reduce height
+                    ;; needed given a fixed font size
+                    (optimize-table-columns s)
                     (when (not (equal? '((plain-text "")) caption))
                       (let* ((cap
                               (let ((s (slide:create-text-box)))
@@ -539,14 +545,13 @@
                              (a2 cap:anchor))
                         (for-each
                          (lambda (t)
-                           (let ((r (add-text p t #;#t)))
-                             #;(set! r:font-color *text-color*)
+                           (let ((r (add-text p t)))
                              (set! r:font-size (* r:font-size 0.8d0))))
                          caption)
                         (set! p:text-align
                               org.apache.poi.sl.usermodel.TextParagraph$TextAlign:CENTER)
                         (a2:set-rect
-                         (/ (- page-size:width w) 2) h w 12)
+                         (+ *page-size*:x (/ (- *page-size*:width w) 2)) h w 12)
                         (set! cap:anchor a2)))))))))))
 
 (define (insert-block (slide ::org.apache.poi.xslf.usermodel.XSLFSlide)
@@ -628,16 +633,10 @@
                                  (slide:shapes i)))
                              (a s:anchor))
                         (cond ((? ts::org.apache.poi.xslf.usermodel.XSLFTextShape s)
-                               (! origh a:height)
                                (set! ts:text-autofit
                                      org.apache.poi.sl.usermodel.TextShape$TextAutofit:NORMAL)
                                (a:set-rect a:x y a:width (* scale a:height))
                                (set! ts:anchor a)
-                               ;; (ts:resize-to-fit-text)
-                               ;; (when (= origh ts:anchor:height)
-                               ;;   (a:set-rect a:x y a:width
-                               ;;               (* scale origh 0.5))
-                               ;;   (set! ts:anchor a))
                                (set! y (+ y ts:anchor:height)))
                               ((? ps::org.apache.poi.xslf.usermodel.XSLFPictureShape s)
                                (let ((scale (- 1 (* 0.25 (- 1 scale)))))
@@ -651,6 +650,21 @@
                                      (a:set-rect a:x y a:width a:height)))
                                (set! ps:anchor a)
                                (set! y (+ y a:height)))
+                              ((? tbl::org.apache.poi.xslf.usermodel.XSLFTable s)
+                               (do ((r 0 (+ r 1))) ((= r tbl:number-of-rows))
+                                 (do ((c 0 (+ c 1))) ((= c tbl:number-of-columns))
+                                   (let ((cell (tbl:get-cell r c)))
+                                     (for-each
+                                      (lambda (paragraph ::org.apache.poi.xslf.usermodel.XSLFTextParagraph)
+                                        (for-each
+                                         (lambda (run ::org.apache.poi.xslf.usermodel.XSLFTextRun)
+                                           (run:set-font-size
+                                            (* run:font-size scale)))
+                                         paragraph:text-runs))
+                                      cell:text-paragraphs))))
+                               (tbl:update-cell-anchor)
+                               (optimize-table-columns tbl)
+                               (set! y (+ y tbl:anchor:height)))
                               (else
                                (a:set-rect a:x y a:width (* scale a:height))
                                (set! s:anchor a)
